@@ -1,0 +1,67 @@
+﻿namespace MainApp;
+
+public class TurnSystem
+{
+    public List<MovableEntity> Entities = new();
+    public float TotalAv { get; set; } = 0;
+    public int Cycle => TotalAv < 150 ? 0 : 1+(int)(TotalAv-150)/100;
+    public Option<MovableEntity> CurrentEntity { get; private set; } = new Option<MovableEntity>.None();
+
+    public TurnSystem()
+    {
+    }
+
+    public void Display()
+    {
+        var cloned = new List<MovableEntity>(Entities);
+        cloned.Sort((a,b)=>a.ActionValue.CompareTo(b.ActionValue));
+        foreach (var t in cloned)
+        {
+            Console.WriteLine($"{t} > {t.ActionValue}({t.Speed.GetFinalValue()})");
+        }
+        Console.WriteLine("--------------------------------------------------------");
+    }
+
+    public MovableEntity AddEntity(MovableEntity entity)
+    {
+        Entities.Add(entity);
+        return entity;
+    }
+
+    public float MoveToNextTurn()
+    {
+        if (Entities.Count == 0)
+        {
+            CurrentEntity = new Option<MovableEntity>.None();
+            return 0.0f;
+        }
+        var nextEntity = Entities[0];
+        var minAv = Entities[0].ActionValue;
+        foreach (var entity in Entities.Where(entity => entity.ActionValue < minAv))
+        {
+            minAv = entity.ActionValue;
+            nextEntity = entity;
+        }
+
+        foreach (var t in Entities)
+        {
+            t.ActionValue -= minAv;
+        }
+
+        CurrentEntity = new Option<MovableEntity>.Some(nextEntity);
+        TotalAv += minAv;
+        return minAv;
+    }
+
+    public void DoAction()
+    {
+        if (CurrentEntity is not Option<MovableEntity>.Some someEntity) return;
+        var entity = someEntity.Value;
+        entity.DoAction();
+    }
+
+    public void RunFor(int cycles)
+    {
+        // TODO: Implement
+    }
+}
