@@ -1,4 +1,4 @@
-﻿namespace MainApp;
+﻿namespace HonkaiStarRailSimulator;
 
 public class Stat
 {

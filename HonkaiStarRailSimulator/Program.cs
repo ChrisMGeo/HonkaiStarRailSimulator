@@ -1,4 +1,5 @@
-﻿using MainApp;
+﻿using HonkaiStarRailSimulator;
+using HonkaiStarRailSimulator.Characters;
 
 var ts = new TurnSystem();
 var bronya = new Bronya();
@@ -12,15 +13,20 @@ var bronya = new Bronya();
 ts.AddEntity(bronya);
 var blade = (Blade)ts.AddEntity(new Blade());
 bronya.Target = (Option<MovableEntity>)blade;
-const int cycles = 10;
-while (ts.TotalAv < 150 + (cycles - 1) * 100)
+const int cycles = 7;
+// while (ts.TotalAv < 150 + (cycles - 1) * 100)
+// {
+//     ts.Display();
+//     ts.MoveToNextTurn();
+//     if (ts.TotalAv >= 150 + (cycles - 1) * 100) break;
+//     Console.WriteLine("MOVED TO NEXT TURN");
+//     ts.Display();
+//     ts.DoAction();
+// }
+
+for (var i = 0; i < cycles; i++)
 {
-    ts.Display();
-    ts.MoveToNextTurn();
-    if (ts.TotalAv >= 150 + (cycles - 1) * 100) break;
-    Console.WriteLine("MOVED TO NEXT TURN");
-    ts.Display();
-    ts.DoAction();
+    ts.RunCycle();
 }
 
 Console.WriteLine($"Blade turns: {blade.Turns}");

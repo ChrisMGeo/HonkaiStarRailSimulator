@@ -1,5 +1,5 @@
 ﻿using System.Numerics;
-namespace MainApp;
+namespace HonkaiStarRailSimulator;
 
 public abstract record Option<T>
 {
