@@ -2,83 +2,93 @@
 
 public abstract record CharacterLevel
 {
-    private record Ascended(int Level) : CharacterLevel; // 20/30
+    public static int GetAscensionLevel(int level, bool ascended = false)
+    {
+        return int.Min(
+            int.Max(
+                (level - 20) / 10 + (level is >= 20 and < 80 ? ((level - 20) % 10 == 0 ? (ascended ? 1 : 0) : 1) : 0),
+                0), 6);
+    }
 
-    public record Unascended(int Level) : CharacterLevel; // 20/20
+    private record Ascended(int AscendedLevel) : CharacterLevel; // 20/30, 30/40,...70/80
 
-    public int AscensionLevel=> this switch {
-        Unascended unascended => int.Max(int.Min((int)float.Ceiling((unascended.Level - 20) / 10f), 6),0),
-        Ascended ascended => int.Max(int.Min((int)float.Ceiling((ascended.Level - 20) / 10f) + ((ascended.Level-20)%10==0?1:0), 6),0),
+    public record Unascended(int UnascendedLevel) : CharacterLevel; // 1-20/20, 21-30/30,...71-80/80
+
+    public int AscensionLevel => this switch
+    {
+        Unascended unascended => GetAscensionLevel(unascended.UnascendedLevel),
+        Ascended ascended => GetAscensionLevel(ascended.AscendedLevel, true),
         _ => throw new ArgumentOutOfRangeException()
     };
 
     public int MaxLevel => 20 + AscensionLevel * 10;
-    public int Level => this switch { Unascended unascended => unascended.Level, Ascended ascended => ascended.Level };
 
-    public CharacterLevel LevelUp()
+    public int Level => this switch
     {
-        switch (this)
-        {
-            case Ascended:
-                return new Unascended(Level + 1);
-            case Unascended:
-                if (Level >= 80)
-                {
-                    return new Unascended(80);
-                }
-                if (Level == MaxLevel)
-                {
-                    return new Ascended(Level);
-                }
-                return new Unascended(Level + 1);
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
-    }
+        Unascended unascended => unascended.UnascendedLevel, Ascended ascended => ascended.AscendedLevel,
+        _ => throw new ArgumentOutOfRangeException()
+    };
 }
 
 public class Trace
 {
     private bool active = false;
+    private Trace? parent = null;
+    private List<Trace> children = new List<Trace>();
+
     public bool Active
     {
-        get => preRequisites() && active;
+        get => active;
         set
         {
-            var prevActive = Active;
-            active = value;
-            if (Active != prevActive)
-                if (Active)
-                    onActivation();
-                else
-                    onDeactivation();
-            if (!Active)
-                active = false;
-
+            var prevActive = active;
+            active = (parent == null || parent.Active) && PreRequisites() && value;
+            if (active == prevActive) return;
+            if (active)
+                OnActivation();
+            else
+            {
+                OnDeactivation();
+                foreach (var child in children)
+                {
+                    child.Active = false;
+                }
+            }
         }
     }
 
-    private Func<bool> preRequisites;
-    private Action onActivation;
-    private Action onDeactivation;
+    public void AddChild(params Trace[] traces)
+    {
+        foreach (var trace in traces)
+        {
+            trace.Active = false;
+            trace.parent = this;
+            children.Add(trace);
+        }
+    }
 
-    public Trace(bool active = false, Func<bool>? preRequisites = null, Action? onActivation= null, Action? onDeactivation=
-        null)
+    public Func<bool> PreRequisites { get; protected set; }
+    public Action OnActivation { get; protected set; }
+    public Action OnDeactivation { get; protected set; }
+
+    public Trace(bool active = false, Func<bool>? preRequisites = null, Action? onActivation = null,
+        Action? onDeactivation =
+            null)
     {
         preRequisites ??= () => true;
         onActivation ??= () => { };
         onDeactivation ??= () => { };
         this.active = active;
-        this.preRequisites = preRequisites;
-        this.onActivation = onActivation;
-        this.onDeactivation = onDeactivation;
+        PreRequisites = preRequisites;
+        OnActivation = onActivation;
+        OnDeactivation = onDeactivation;
     }
 }
 
 public enum CharacterPath
 {
     Destruction,
-    Hunt,
+    TheHunt,
     Erudition,
     Harmony,
     Nihility,
@@ -86,8 +96,8 @@ public enum CharacterPath
     Abundance
 }
 
-
-public enum CharacterId {
+public enum CharacterId
+{
     March7Th = 1001,
     DanHeng = 1002,
     Himeko = 1003,
@@ -128,12 +138,8 @@ public enum CharacterId {
 public abstract class Character : Entity
 {
     // private CharacterLevel _characterLevel;
-    public CharacterLevel CharacterLevel
-    {
-        get;
-        init;
-    }
-    public event EventHandler OnSkill; 
+    public CharacterLevel CharacterLevel { get; init; }
+    public event EventHandler OnSkill;
     public event EventHandler OnNormalAttack;
     public event EventHandler OnUltimate;
 
@@ -185,8 +191,9 @@ public abstract class Character : Entity
         { Element.Wind, new Stat() }
     };
 
-    protected Character(CharacterId id, int level) : base(GetCharacterSpeed(id), GetCharacterMaxHp(id, int.Max(int.Min(level, 80),1)),
-        GetCharacterAtk(id, int.Max(int.Min(level, 80),1)), GetCharacterDef(id, int.Max(int.Min(level, 80),1)))
+    protected Character(CharacterId id, int level) : base(GetCharacterSpeed(id),
+        GetCharacterMaxHp(id, int.Max(int.Min(level, 80), 1)),
+        GetCharacterAtk(id, int.Max(int.Min(level, 80), 1)), GetCharacterDef(id, int.Max(int.Min(level, 80), 1)))
     {
         CharacterLevel = new CharacterLevel.Unascended(level);
         Id = id;
@@ -199,138 +206,206 @@ public abstract class Character : Entity
         {
             case CharacterPath.Destruction:
                 StatBoost1 = new Trace();
-                
-                Ascension2 = new Trace(preRequisites:()=>this.CharacterLevel.AscensionLevel>=2);
-                StatBoost2 = new Trace(preRequisites:() => this.Ascension2.Active);
-                StatBoost3 = new Trace(preRequisites: () => this.StatBoost2.Active && this.CharacterLevel.AscensionLevel>=3);
-                StatBoost4 = new Trace(preRequisites: () => this.StatBoost3.Active);
 
-                Ascension4 = new Trace(preRequisites:()=>this.CharacterLevel.AscensionLevel>=4);
-                StatBoost5 = new Trace(preRequisites: () => this.Ascension4.Active);
-                StatBoost6 = new Trace(preRequisites: () => this.StatBoost5.Active && this.CharacterLevel.AscensionLevel>=5);
-                StatBoost7 = new Trace(preRequisites: () => this.StatBoost6.Active);
+                Ascension2 = new Trace(preRequisites: () => this.CharacterLevel.AscensionLevel >= 2);
+                StatBoost2 = new Trace();
+                Ascension2.AddChild(StatBoost2);
+                StatBoost3 = new Trace(preRequisites: () =>
+                    this.CharacterLevel.AscensionLevel >= 3);
+                StatBoost2.AddChild(StatBoost3);
+                StatBoost4 = new Trace();
+                StatBoost3.AddChild(StatBoost4);
 
-                Ascension6 = new Trace(preRequisites:()=>this.CharacterLevel.AscensionLevel>=6);
-                StatBoost8 = new Trace(preRequisites: () => this.Ascension6.Active);
-                StatBoost9 = new Trace(preRequisites: () => this.StatBoost8.Active && this.CharacterLevel.Level>=75);
-                StatBoost10 = new Trace(preRequisites: () => this.StatBoost8.Active && this.CharacterLevel.Level >= 80);
+                Ascension4 = new Trace(preRequisites: () => this.CharacterLevel.AscensionLevel >= 4);
+                StatBoost5 = new Trace();
+                Ascension4.AddChild(StatBoost5);
+                StatBoost6 = new Trace(preRequisites: () =>
+                    this.CharacterLevel.AscensionLevel >= 5);
+                StatBoost5.AddChild(StatBoost6);
+                StatBoost7 = new Trace();
+                StatBoost6.AddChild(StatBoost7);
+
+                Ascension6 = new Trace(preRequisites: () => this.CharacterLevel.AscensionLevel >= 6);
+                StatBoost8 = new Trace();
+                Ascension6.AddChild(StatBoost8);
+                StatBoost9 = new Trace(preRequisites: () => this.CharacterLevel.Level >= 75);
+                StatBoost10 = new Trace(preRequisites: () => this.CharacterLevel.Level >= 80);
+                StatBoost8.AddChild(StatBoost9, StatBoost10);
                 break;
-            case CharacterPath.Hunt:
+            case CharacterPath.TheHunt:
                 StatBoost1 = new Trace();
-                
-                Ascension2 = new Trace(preRequisites:()=>this.CharacterLevel.AscensionLevel>=2);
-                StatBoost2 = new Trace(preRequisites:() => this.Ascension2.Active);
-                StatBoost3 = new Trace(preRequisites: () => this.StatBoost2.Active && this.CharacterLevel.AscensionLevel>=3);
+
+                Ascension2 = new Trace(preRequisites: () => this.CharacterLevel.AscensionLevel >= 2);
+                StatBoost2 = new Trace();
+                Ascension2.AddChild(StatBoost2);
+                StatBoost3 = new Trace(preRequisites: () =>
+                    this.CharacterLevel.AscensionLevel >= 3);
+                StatBoost2.AddChild(StatBoost3);
 
                 StatBoost4 = new Trace(preRequisites: () => this.CharacterLevel.AscensionLevel >= 3);
-                
-                Ascension4 = new Trace(preRequisites:()=>this.CharacterLevel.AscensionLevel>=4);
-                StatBoost5 = new Trace(preRequisites: () => this.Ascension4.Active);
-                StatBoost6 = new Trace(preRequisites: () => this.StatBoost5.Active && this.CharacterLevel.AscensionLevel>=5);
-                
-                StatBoost7 = new Trace(preRequisites: () => this.CharacterLevel.AscensionLevel>=5);
-                
-                Ascension6 = new Trace(preRequisites:()=>this.CharacterLevel.AscensionLevel>=6);
-                StatBoost8 = new Trace(preRequisites: () => this.Ascension6.Active);
-                StatBoost9 = new Trace(preRequisites: () => this.StatBoost8.Active && this.CharacterLevel.Level>=75);
-                StatBoost10 = new Trace(preRequisites: () => this.StatBoost8.Active && this.CharacterLevel.Level >= 80);
+
+                Ascension4 = new Trace(preRequisites: () => this.CharacterLevel.AscensionLevel >= 4);
+                StatBoost5 = new Trace();
+                Ascension4.AddChild(StatBoost5);
+                StatBoost6 = new Trace(preRequisites: () =>
+                    this.CharacterLevel.AscensionLevel >= 5);
+                StatBoost5.AddChild(StatBoost6);
+
+                StatBoost7 = new Trace(preRequisites: () => this.CharacterLevel.AscensionLevel >= 5);
+
+                Ascension6 = new Trace(preRequisites: () => this.CharacterLevel.AscensionLevel >= 6);
+                StatBoost8 = new Trace();
+                Ascension6.AddChild(StatBoost8);
+                StatBoost9 = new Trace(preRequisites: () => this.CharacterLevel.Level >= 75);
+                StatBoost10 = new Trace(preRequisites: () => this.CharacterLevel.Level >= 80);
+                StatBoost8.AddChild(StatBoost9, StatBoost10);
                 break;
             case CharacterPath.Erudition:
                 StatBoost1 = new Trace();
-                
-                Ascension2 = new Trace(preRequisites:()=>this.CharacterLevel.AscensionLevel>=2);
-                StatBoost2 = new Trace(preRequisites:() => this.Ascension2.Active);
-                StatBoost3 = new Trace(preRequisites: () => this.StatBoost2.Active && this.CharacterLevel.AscensionLevel>=3);
-                StatBoost4 = new Trace(preRequisites: () => this.StatBoost2.Active && this.CharacterLevel.AscensionLevel>=3);
-                
-                Ascension4 = new Trace(preRequisites:()=>this.CharacterLevel.AscensionLevel>=4);
-                StatBoost5 = new Trace(preRequisites: () => this.Ascension4.Active);
-                StatBoost6 = new Trace(preRequisites: () => this.StatBoost5.Active && this.CharacterLevel.AscensionLevel>=5);
-                StatBoost7 = new Trace(preRequisites: () => this.StatBoost5.Active && this.CharacterLevel.AscensionLevel>=5);
-                
-                Ascension6 = new Trace(preRequisites:()=>this.CharacterLevel.AscensionLevel>=6);
-                StatBoost8 = new Trace(preRequisites: () => this.Ascension6.Active);
-                StatBoost9 = new Trace(preRequisites: () => this.Ascension6.Active && this.CharacterLevel.Level>=75);
+
+                Ascension2 = new Trace(preRequisites: () => this.CharacterLevel.AscensionLevel >= 2);
+                StatBoost2 = new Trace();
+                Ascension2.AddChild(StatBoost2);
+                StatBoost3 = new Trace(preRequisites: () =>
+                    this.CharacterLevel.AscensionLevel >= 3);
+                StatBoost4 = new Trace(preRequisites: () =>
+                    this.CharacterLevel.AscensionLevel >= 3);
+                StatBoost2.AddChild(StatBoost3, StatBoost4);
+
+                Ascension4 = new Trace(preRequisites: () => this.CharacterLevel.AscensionLevel >= 4);
+                StatBoost5 = new Trace();
+                Ascension4.AddChild(StatBoost5);
+                StatBoost6 = new Trace(preRequisites: () =>
+                    this.CharacterLevel.AscensionLevel >= 5);
+                StatBoost7 = new Trace(preRequisites: () =>
+                    this.CharacterLevel.AscensionLevel >= 5);
+                StatBoost5.AddChild(StatBoost6, StatBoost7);
+
+                Ascension6 = new Trace(preRequisites: () => this.CharacterLevel.AscensionLevel >= 6);
+                StatBoost8 = new Trace();
+                StatBoost9 = new Trace(preRequisites: () => this.CharacterLevel.Level >= 75);
+                Ascension6.AddChild(StatBoost8, StatBoost9);
 
                 StatBoost10 = new Trace(preRequisites: () => this.CharacterLevel.Level >= 80);
                 break;
             case CharacterPath.Harmony:
                 StatBoost1 = new Trace();
-                
-                Ascension2 = new Trace(preRequisites:()=>this.CharacterLevel.AscensionLevel>=2);
-                StatBoost2 = new Trace(preRequisites:() => this.Ascension2.Active);
-                StatBoost3 = new Trace(preRequisites: () => this.StatBoost2.Active && this.CharacterLevel.AscensionLevel>=3);
+
+                Ascension2 = new Trace(preRequisites: () => this.CharacterLevel.AscensionLevel >= 2);
+                StatBoost2 = new Trace();
+                Ascension2.AddChild(StatBoost2);
+                StatBoost3 = new Trace(preRequisites: () =>
+                    this.CharacterLevel.AscensionLevel >= 3);
+                StatBoost2.AddChild(StatBoost3);
 
                 StatBoost4 = new Trace(preRequisites: () =>
-                    this.CharacterLevel.AscensionLevel >= 3 && this.StatBoost1.Active);
-                
-                Ascension4 = new Trace(preRequisites:()=>this.CharacterLevel.AscensionLevel>=4);
-                StatBoost5 = new Trace(preRequisites: () => this.Ascension4.Active);
-                StatBoost6 = new Trace(preRequisites: () => this.StatBoost5.Active && this.CharacterLevel.AscensionLevel>=5);
+                    this.CharacterLevel.AscensionLevel >= 3);
+                StatBoost1.AddChild(StatBoost4);
+
+                Ascension4 = new Trace(preRequisites: () => this.CharacterLevel.AscensionLevel >= 4);
+                StatBoost5 = new Trace();
+                Ascension4.AddChild(StatBoost5);
+                StatBoost6 = new Trace(preRequisites: () =>
+                    this.CharacterLevel.AscensionLevel >= 5);
+                StatBoost5.AddChild(StatBoost6);
 
                 StatBoost7 = new Trace(preRequisites: () =>
-                    this.CharacterLevel.AscensionLevel >= 5 && this.StatBoost1.Active);
-                
-                Ascension6 = new Trace(preRequisites:()=>this.CharacterLevel.AscensionLevel>=6);
-                StatBoost8 = new Trace(preRequisites: () => this.Ascension6.Active);
-                StatBoost9 = new Trace(preRequisites: () => this.StatBoost8.Active && this.CharacterLevel.Level>=75);
-                StatBoost10 = new Trace(preRequisites: () => this.StatBoost8.Active && this.CharacterLevel.Level >= 80);
+                    this.CharacterLevel.AscensionLevel >= 5);
+                StatBoost1.AddChild(StatBoost7);
+
+                Ascension6 = new Trace(preRequisites: () => this.CharacterLevel.AscensionLevel >= 6);
+                StatBoost8 = new Trace();
+                Ascension6.AddChild(StatBoost8);
+                StatBoost9 = new Trace(preRequisites: () => this.CharacterLevel.Level >= 75);
+                StatBoost10 = new Trace(preRequisites: () => this.CharacterLevel.Level >= 80);
+                StatBoost8.AddChild(StatBoost9, StatBoost10);
                 break;
             case CharacterPath.Nihility:
                 StatBoost1 = new Trace();
-                
-                Ascension2 = new Trace(preRequisites:()=>this.CharacterLevel.AscensionLevel>=2);
-                StatBoost2 = new Trace(preRequisites:() => this.Ascension2.Active);
-                StatBoost3 = new Trace(preRequisites: () => this.StatBoost2.Active && this.CharacterLevel.AscensionLevel>=3);
-                StatBoost4 = new Trace(preRequisites: () => this.StatBoost3.Active);
-                
-                Ascension4 = new Trace(preRequisites:()=>this.CharacterLevel.AscensionLevel>=4);
-                StatBoost5 = new Trace(preRequisites: () => this.Ascension4.Active);
-                StatBoost6 = new Trace(preRequisites: () => this.StatBoost5.Active && this.CharacterLevel.AscensionLevel>=5);
-                StatBoost7 = new Trace(preRequisites: () => this.StatBoost6.Active);
-                
-                Ascension6 = new Trace(preRequisites:()=>this.CharacterLevel.AscensionLevel>=6);
-                StatBoost8 = new Trace(preRequisites: () => this.Ascension6.Active);
-                StatBoost9 = new Trace(preRequisites: () => this.Ascension6.Active && this.CharacterLevel.Level >= 75);
-                
-                StatBoost10 = new Trace(preRequisites: () => this.CharacterLevel.Level >= 80 && this.StatBoost1.Active);
+
+                Ascension2 = new Trace(preRequisites: () => this.CharacterLevel.AscensionLevel >= 2);
+                StatBoost2 = new Trace();
+                Ascension2.AddChild(StatBoost2);
+                StatBoost3 = new Trace(preRequisites: () =>
+                    this.CharacterLevel.AscensionLevel >= 3);
+                StatBoost2.AddChild(StatBoost3);
+                StatBoost4 = new Trace();
+                StatBoost3.AddChild(StatBoost4);
+
+                Ascension4 = new Trace(preRequisites: () => this.CharacterLevel.AscensionLevel >= 4);
+                StatBoost5 = new Trace();
+                Ascension4.AddChild(StatBoost5);
+                StatBoost6 = new Trace(preRequisites: () =>
+                    this.CharacterLevel.AscensionLevel >= 5);
+                StatBoost5.AddChild(StatBoost6);
+                StatBoost7 = new Trace();
+                StatBoost6.AddChild(StatBoost7);
+
+                Ascension6 = new Trace(preRequisites: () => this.CharacterLevel.AscensionLevel >= 6);
+                StatBoost8 = new Trace();
+                StatBoost9 = new Trace(preRequisites: () => this.CharacterLevel.Level >= 75);
+                Ascension6.AddChild(StatBoost8, StatBoost9);
+
+                StatBoost10 = new Trace(preRequisites: () => this.CharacterLevel.Level >= 80);
+                StatBoost1.AddChild(StatBoost10);
                 break;
             case CharacterPath.Preservation:
                 StatBoost1 = new Trace();
-                
-                Ascension2 = new Trace(preRequisites:()=>this.CharacterLevel.AscensionLevel>=2 && this.StatBoost1.Active);
-                StatBoost2 = new Trace(preRequisites:() => this.Ascension2.Active);
-                StatBoost3 = new Trace(preRequisites: () => this.StatBoost2.Active && this.CharacterLevel.AscensionLevel>=3);
+
+                Ascension2 = new Trace(preRequisites: () =>
+                    this.CharacterLevel.AscensionLevel >= 2);
+                StatBoost2 = new Trace();
+                Ascension2.AddChild(StatBoost2);
+                StatBoost3 = new Trace(preRequisites: () =>
+                    this.CharacterLevel.AscensionLevel >= 3);
+                StatBoost2.AddChild(StatBoost3);
 
                 StatBoost4 = new Trace(preRequisites: () => CharacterLevel.AscensionLevel >= 3);
-                
-                Ascension4 = new Trace(preRequisites:()=>this.CharacterLevel.AscensionLevel>=4 && this.StatBoost1.Active);
-                StatBoost5 = new Trace(preRequisites: () => this.Ascension4.Active);
-                StatBoost6 = new Trace(preRequisites: () => this.StatBoost5.Active && this.CharacterLevel.AscensionLevel>=5);
+
+                Ascension4 = new Trace(preRequisites: () =>
+                    this.CharacterLevel.AscensionLevel >= 4);
+                StatBoost5 = new Trace();
+                Ascension4.AddChild(StatBoost5);
+                StatBoost6 = new Trace(preRequisites: () =>
+                    this.CharacterLevel.AscensionLevel >= 5);
+                StatBoost5.AddChild(StatBoost6);
+
+                StatBoost1.AddChild(Ascension2, Ascension4);
 
                 StatBoost7 = new Trace(preRequisites: () => CharacterLevel.AscensionLevel >= 5);
-                
-                Ascension6 = new Trace(preRequisites:()=>this.CharacterLevel.AscensionLevel>=6);
-                StatBoost8 = new Trace(preRequisites: () => this.Ascension6.Active);
-                StatBoost9 = new Trace(preRequisites: () => this.StatBoost8.Active && this.CharacterLevel.Level>=75);
-                StatBoost10 = new Trace(preRequisites: () => this.StatBoost8.Active && this.CharacterLevel.Level >= 80);
+
+                Ascension6 = new Trace(preRequisites: () => this.CharacterLevel.AscensionLevel >= 6);
+                StatBoost8 = new Trace();
+                Ascension6.AddChild(StatBoost8);
+                StatBoost9 = new Trace(preRequisites: () => this.CharacterLevel.Level >= 75);
+                StatBoost10 = new Trace(preRequisites: () => this.CharacterLevel.Level >= 80);
+                StatBoost8.AddChild(StatBoost9, StatBoost10);
                 break;
             case CharacterPath.Abundance:
                 StatBoost1 = new Trace();
-                
-                Ascension2 = new Trace(preRequisites:()=>this.CharacterLevel.AscensionLevel>=2);
-                StatBoost2 = new Trace(preRequisites:() => this.Ascension2.Active);
-                StatBoost3 = new Trace(preRequisites: () => this.StatBoost2.Active && this.CharacterLevel.AscensionLevel>=3);
-                StatBoost4 = new Trace(preRequisites: () => this.StatBoost3.Active);
-                
-                Ascension4 = new Trace(preRequisites:()=>this.CharacterLevel.AscensionLevel>=4);
-                StatBoost5 = new Trace(preRequisites: () => this.Ascension4.Active);
-                StatBoost6 = new Trace(preRequisites: () => this.StatBoost5.Active && this.CharacterLevel.AscensionLevel>=5);
-                StatBoost7 = new Trace(preRequisites: () => this.StatBoost6.Active);
+
+                Ascension2 = new Trace(preRequisites: () => this.CharacterLevel.AscensionLevel >= 2);
+                StatBoost2 = new Trace();
+                Ascension2.AddChild(StatBoost2);
+                StatBoost3 = new Trace(preRequisites: () =>
+                    this.CharacterLevel.AscensionLevel >= 3);
+                StatBoost2.AddChild(StatBoost3);
+                StatBoost4 = new Trace();
+                StatBoost3.AddChild(StatBoost4);
+
+                Ascension4 = new Trace(preRequisites: () => this.CharacterLevel.AscensionLevel >= 4);
+                StatBoost5 = new Trace();
+                Ascension4.AddChild(StatBoost5);
+                StatBoost6 = new Trace(preRequisites: () =>
+                    this.CharacterLevel.AscensionLevel >= 5);
+                StatBoost5.AddChild(StatBoost6);
+                StatBoost7 = new Trace();
+                StatBoost6.AddChild(StatBoost7);
 
                 Ascension6 = new Trace(preRequisites: () => this.CharacterLevel.AscensionLevel >= 6);
-                StatBoost8 = new Trace(preRequisites: () => this.Ascension6.Active);
-                StatBoost9 = new Trace(preRequisites: () => this.Ascension6.Active && this.CharacterLevel.Level>=75);
+                StatBoost8 = new Trace();
+                StatBoost9 = new Trace(preRequisites: () => this.CharacterLevel.Level >= 75);
+                Ascension6.AddChild(StatBoost8, StatBoost9);
 
                 StatBoost10 = new Trace(preRequisites: () => this.CharacterLevel.Level >= 80);
                 break;
@@ -344,11 +419,7 @@ public abstract class Character : Entity
 
     public CharacterPath GetCharacterPath(CharacterId id)
     {
-        return id switch
-        {
-            CharacterId.Bronya or CharacterId.Tingyun => CharacterPath.Harmony,
-            CharacterId.Blade => CharacterPath.Destruction
-        };
+        return Globals.CharacterStats[(int)id].Path;
     }
 
     public static float GetCharacterMaxEnergy(CharacterId id)
@@ -359,22 +430,21 @@ public abstract class Character : Entity
 
     public static float GetCharacterMaxHp(CharacterId id, int level)
     {
-        int ascension = int.Max(int.Min((int)float.Ceiling((level - 20) / 10f), 6),0);
+        var ascension = int.Max(int.Min((int)float.Ceiling((level - 20) / 10f), 6), 0);
         return (level - 1) * Globals.CharacterStats[(int)id].Stats.HPAdd +
                Globals.CharacterStats[(int)id].Stats.HPBase[ascension];
-
     }
 
     public static float GetCharacterAtk(CharacterId id, int level)
     {
-        int ascension = int.Max(int.Min((int)float.Ceiling((level - 20) / 10f), 6),0);
+        var ascension = int.Max(int.Min((int)float.Ceiling((level - 20) / 10f), 6), 0);
         return (level - 1) * Globals.CharacterStats[(int)id].Stats.AttackAdd +
                Globals.CharacterStats[(int)id].Stats.AttackBase[ascension];
     }
 
     public static float GetCharacterDef(CharacterId id, int level)
     {
-        int ascension = int.Max(int.Min((int)float.Ceiling((level - 20) / 10f), 6),0);
+        var ascension = int.Max(int.Min((int)float.Ceiling((level - 20) / 10f), 6), 0);
         return (level - 1) * Globals.CharacterStats[(int)id].Stats.DefenceAdd +
                Globals.CharacterStats[(int)id].Stats.DefenceBase[ascension];
     }

@@ -9,6 +9,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "March 7th",
+                Path = CharacterPath.Preservation,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 101, BaseAggro = 150,
@@ -38,6 +39,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Dan Heng",
+                Path = CharacterPath.TheHunt,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 110, BaseAggro = 75,
@@ -62,6 +64,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Himeko",
+                Path = CharacterPath.Erudition,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 96, BaseAggro = 75,
@@ -91,6 +94,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Welt",
+                Path = CharacterPath.Nihility,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 102, BaseAggro = 100,
@@ -120,6 +124,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Kafka",
+                Path = CharacterPath.Nihility,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 100, BaseAggro = 100,
@@ -149,6 +154,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Silver Wolf",
+                Path = CharacterPath.Nihility,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 107, BaseAggro = 100,
@@ -178,6 +184,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Arlan",
+                Path = CharacterPath.Destruction,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 102, BaseAggro = 125,
@@ -202,6 +209,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Asta",
+                Path = CharacterPath.Harmony,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 106, BaseAggro = 100,
@@ -231,6 +239,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Herta",
+                Path = CharacterPath.Erudition,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 100, BaseAggro = 75,
@@ -260,6 +269,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Bronya",
+                Path = CharacterPath.Harmony,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 99, BaseAggro = 100,
@@ -289,6 +299,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Seele",
+                Path = CharacterPath.TheHunt,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 115, BaseAggro = 75,
@@ -318,6 +329,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Serval",
+                Path = CharacterPath.Erudition,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 104, BaseAggro = 75,
@@ -347,6 +359,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Gepard",
+                Path = CharacterPath.Preservation,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 92, BaseAggro = 150,
@@ -376,6 +389,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Natasha",
+                Path = CharacterPath.Abundance,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 98, BaseAggro = 100,
@@ -405,6 +419,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Pela",
+                Path = CharacterPath.Nihility,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 105, BaseAggro = 100,
@@ -434,6 +449,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Clara",
+                Path = CharacterPath.Destruction,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 90, BaseAggro = 125,
@@ -463,6 +479,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Sampo",
+                Path = CharacterPath.Nihility,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 102, BaseAggro = 100,
@@ -492,6 +509,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Hook",
+                Path = CharacterPath.Destruction,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 94, BaseAggro = 125,
@@ -521,6 +539,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Lynx",
+                Path = CharacterPath.Abundance,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 100, BaseAggro = 100,
@@ -545,6 +564,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Luka",
+                Path = CharacterPath.Nihility,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 103, BaseAggro = 100,
@@ -574,6 +594,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Qingque",
+                Path = CharacterPath.Erudition,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 98, BaseAggro = 75,
@@ -598,6 +619,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Tingyun",
+                Path = CharacterPath.Harmony,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 112, BaseAggro = 100,
@@ -627,6 +649,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Luocha",
+                Path = CharacterPath.Abundance,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 101, BaseAggro = 100,
@@ -656,6 +679,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Jing Yuan",
+                Path = CharacterPath.Erudition,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 99, BaseAggro = 75,
@@ -685,6 +709,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Blade",
+                Path = CharacterPath.Destruction,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 97, BaseAggro = 125,
@@ -714,6 +739,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Sushang",
+                Path = CharacterPath.TheHunt,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 107, BaseAggro = 75,
@@ -743,6 +769,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Yukong",
+                Path = CharacterPath.Harmony,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 107, BaseAggro = 100,
@@ -772,6 +799,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Fu Xuan",
+                Path = CharacterPath.Preservation,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 100, BaseAggro = 150,
@@ -801,6 +829,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Yanqing",
+                Path = CharacterPath.TheHunt,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 109, BaseAggro = 75,
@@ -830,6 +859,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Bailu",
+                Path = CharacterPath.Abundance,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 98, BaseAggro = 100,
@@ -859,6 +889,7 @@ public static class Globals
             new CharacterInfo()
             {
                 Name = "Dan Heng • Imbibitor Lunae",
+                Path = CharacterPath.Destruction,
                 Stats = new CharacterStatInfo()
                 {
                     SpeedBase = 102, BaseAggro = 125,
@@ -882,6 +913,6 @@ public static class Globals
                     DefenceAdd = 2.4750000000931323f,
                 }
             }
-        },
+        }
     };
 }

@@ -19,6 +19,7 @@ for (var i = 0; i < cycles; i++)
 {
     ts.RunCycle();
 }
+
 ts.Display();
 
 Console.WriteLine($"Blade turns: {blade.Turns}");

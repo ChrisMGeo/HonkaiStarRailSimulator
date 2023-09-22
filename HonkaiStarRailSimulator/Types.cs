@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+
 namespace HonkaiStarRailSimulator;
 
 public abstract record Option<T>

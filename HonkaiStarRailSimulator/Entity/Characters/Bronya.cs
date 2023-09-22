@@ -24,7 +24,7 @@ public class Bronya : Character
     {
         return "Bronya";
     }
-    
+
     public override void NormalAttack(params MovableEntity[] entities)
     {
         // Could technically override FinishTurn to ActionAdvance but need to check for if previous action was normal attack which is annoying
@@ -34,6 +34,7 @@ public class Bronya : Character
             ActionAdvance(.3f);
             FinishTurnEvent -= TalentEvent;
         }
+
         FinishTurnEvent += TalentEvent;
     }
 

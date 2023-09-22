@@ -30,6 +30,7 @@ public enum EnemyID
 public class Enemy : Entity
 {
     public uint Level { get; init; }
+
     public override void FinishTurn()
     {
         base.FinishTurn();

@@ -2,7 +2,6 @@
 
 public abstract class MovableEntity
 {
-
     public event EventHandler FinishTurnEvent;
     public event EventHandler BeginTurnEvent;
 

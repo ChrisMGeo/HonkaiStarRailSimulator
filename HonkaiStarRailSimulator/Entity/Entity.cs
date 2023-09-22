@@ -10,6 +10,7 @@ public enum Element
     Quantum,
     Imaginary,
 }
+
 public abstract class Entity : MovableEntity
 {
     public override void FinishTurn()

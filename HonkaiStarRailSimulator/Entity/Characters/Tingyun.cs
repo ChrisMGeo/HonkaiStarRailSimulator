@@ -39,13 +39,15 @@ public class Tingyun : Character
         if (finalTarget is Option<Character>.Some validFinalTarget)
         {
             validFinalTarget.Value.Atk.AddStatusEffect(new ConditionalStatusEffect(StatusEffectId.Benediction,
-                ()=>new StatModifier(percentageBonus: float.Min(0.5f, Atk.GetFinalValue() * .25f))));
+                () => new StatModifier(percentageBonus: float.Min(0.5f, Atk.GetFinalValue() * .25f))));
             RemovePreviousBenediction();
             // 20% SPD buff if A2 Ascension Passive is active
             // TODO: Traces and Ascension Passive System (Tree type or just named since there are only three ascension passives and 6 other traces)
-            if (Ascension2.Active) {
+            if (Ascension2.Active)
+            {
                 Speed.AddStatusEffect(
-                new ConstantStatusEffect(StatusEffectId.BenedictionSpdBuff, new StatModifier(percentageBonus: .2f)));
+                    new ConstantStatusEffect(StatusEffectId.BenedictionSpdBuff,
+                        new StatModifier(percentageBonus: .2f)));
             }
         }
     }

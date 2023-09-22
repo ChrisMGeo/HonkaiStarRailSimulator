@@ -4,7 +4,7 @@ public class TurnSystem
 {
     public List<MovableEntity> Entities = new();
     public float TotalAv { get; set; } = 0;
-    public int Cycle => TotalAv < 150 ? 0 : 1+(int)(TotalAv-150)/100;
+    public int Cycle => TotalAv < 150 ? 0 : 1 + (int)(TotalAv - 150) / 100;
     public float NextCycleAv => 150 + Cycle * 100;
     public Option<MovableEntity> CurrentEntity { get; private set; } = new Option<MovableEntity>.None();
 
@@ -15,12 +15,13 @@ public class TurnSystem
     public void Display()
     {
         var cloned = new List<MovableEntity>(Entities);
-        cloned.Sort((a,b)=>a.ActionValue.CompareTo(b.ActionValue));
+        cloned.Sort((a, b) => a.ActionValue.CompareTo(b.ActionValue));
         Console.WriteLine($"Cycle: {Cycle} Total AV: {TotalAv}");
         foreach (var t in cloned)
         {
             Console.WriteLine($"{t} > {t.ActionValue}({t.Speed.GetFinalValue()})");
         }
+
         Console.WriteLine("--------------------------------------------------------");
     }
 
@@ -37,6 +38,7 @@ public class TurnSystem
             CurrentEntity = new Option<MovableEntity>.None();
             return 0.0f;
         }
+
         var nextEntity = Entities[0];
         var minAv = Entities[0].ActionValue;
         foreach (var entity in Entities.Where(entity => entity.ActionValue < minAv))
@@ -61,6 +63,7 @@ public class TurnSystem
         {
             return 0.0f;
         }
+
         var nextEntity = Entities[0];
         var minAv = Entities[0].ActionValue;
         foreach (var entity in Entities.Where(entity => entity.ActionValue < minAv))
@@ -68,6 +71,7 @@ public class TurnSystem
             minAv = entity.ActionValue;
             nextEntity = entity;
         }
+
         return minAv;
     }
 
@@ -95,6 +99,7 @@ public class TurnSystem
                 TotalAv = nextCycleAv;
                 break;
             }
+
             MoveToNextTurn();
             Console.WriteLine("MOVED TO NEXT TURN");
             Display();
