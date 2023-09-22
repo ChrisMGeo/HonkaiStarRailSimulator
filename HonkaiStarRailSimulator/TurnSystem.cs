@@ -16,6 +16,7 @@ public class TurnSystem
     {
         var cloned = new List<MovableEntity>(Entities);
         cloned.Sort((a,b)=>a.ActionValue.CompareTo(b.ActionValue));
+        Console.WriteLine($"Cycle: {Cycle} Total AV: {TotalAv}");
         foreach (var t in cloned)
         {
             Console.WriteLine($"{t} > {t.ActionValue}({t.Speed.GetFinalValue()})");
@@ -83,8 +84,18 @@ public class TurnSystem
         do
         {
             Display();
+            if (TotalAv + NextTurnValue() >= nextCycleAv)
+            {
+                var diff = nextCycleAv - TotalAv;
+                foreach (var t in Entities)
+                {
+                    t.ActionValue -= diff;
+                }
+
+                TotalAv = nextCycleAv;
+                break;
+            }
             MoveToNextTurn();
-            if (TotalAv >= nextCycleAv) break;
             Console.WriteLine("MOVED TO NEXT TURN");
             Display();
             DoAction();

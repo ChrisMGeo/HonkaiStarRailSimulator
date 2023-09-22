@@ -1,46 +1,38 @@
 ﻿namespace HonkaiStarRailSimulator;
 
-// public abstract record BetterCharacterLevel
-// {
-//     public record Ascended(uint Level) : BetterCharacterLevel;
-//
-//     public record Unascended(uint Level) : BetterCharacterLevel;
-//
-//     public uint AscensionLevel()
-//     {
-//         return this switch
-//         {
-//             Ascended ascended => (uint)double.Ceiling(((int)ascended.Level - 20) / 10.0 + 1),
-//             Unascended unascended => (uint)double.Ceiling(((int)unascended.Level - 20) / 10.0 + 1) + 1,
-//             _ => throw new ArgumentOutOfRangeException()
-//         };
-//     }
-//     public BetterCharacterLevel(uint level, bool ascended = false) {}
-//
-//     public BetterCharacterLevel()
-//     {
-//     }
-// }
-
-public class CharacterLevel
+public abstract record CharacterLevel
 {
-    public uint Level { get; private set; }
-    public uint MaxLevel => 20 + (AscensionLevel - 1) * 10;
+    private record Ascended(int Level) : CharacterLevel; // 20/30
 
-    public uint AscensionLevel
-    {
-        get;
-        private set;
-    }
+    public record Unascended(int Level) : CharacterLevel; // 20/20
 
-    public CharacterLevel(uint level, bool ascended=false)
+    public int AscensionLevel=> this switch {
+        Unascended unascended => int.Max(int.Min((int)float.Ceiling((unascended.Level - 20) / 10f), 6),0),
+        Ascended ascended => int.Max(int.Min((int)float.Ceiling((ascended.Level - 20) / 10f) + ((ascended.Level-20)%10==0?1:0), 6),0),
+        _ => throw new ArgumentOutOfRangeException()
+    };
+
+    public int MaxLevel => 20 + AscensionLevel * 10;
+    public int Level => this switch { Unascended unascended => unascended.Level, Ascended ascended => ascended.Level };
+
+    public CharacterLevel LevelUp()
     {
-        level = uint.Max(uint.Min(level, 80), 0);
-        Level = level;
-        AscensionLevel = (uint)double.Ceiling(((int)level - 20) / 10.0 + 1);
-        if (level == MaxLevel && ascended)
+        switch (this)
         {
-            AscensionLevel = uint.Min(AscensionLevel+1, 7);
+            case Ascended:
+                return new Unascended(Level + 1);
+            case Unascended:
+                if (Level >= 80)
+                {
+                    return new Unascended(80);
+                }
+                if (Level == MaxLevel)
+                {
+                    return new Ascended(Level);
+                }
+                return new Unascended(Level + 1);
+            default:
+                throw new ArgumentOutOfRangeException();
         }
     }
 }
@@ -95,39 +87,55 @@ public enum CharacterPath
 }
 
 
-public enum CharacterID
-{
-    Bronya,
-    Blade,
-    Tingyun
+public enum CharacterId {
+    March7Th = 1001,
+    DanHeng = 1002,
+    Himeko = 1003,
+    Welt = 1004,
+    Kafka = 1005,
+    SilverWolf = 1006,
+    Arlan = 1008,
+    Asta = 1009,
+    Herta = 1013,
+    Bronya = 1101,
+    Seele = 1102,
+    Serval = 1103,
+    Gepard = 1104,
+    Natasha = 1105,
+    Pela = 1106,
+    Clara = 1107,
+    Sampo = 1108,
+    Hook = 1109,
+    Lynx = 1110,
+    Luka = 1111,
+    Qingque = 1201,
+    Tingyun = 1202,
+    Luocha = 1203,
+    JingYuan = 1204,
+    Blade = 1205,
+    Sushang = 1206,
+    Yukong = 1207,
+    FuXuan = 1208,
+    Yanqing = 1209,
+    Bailu = 1211,
+    DanHengImbibitorLunae = 1213,
+    // Nickname = 8001,
+    // Nickname = 8002,
+    // Nickname = 8003,
+    // Nickname = 8004,
 }
 
 public abstract class Character : Entity
 {
-    public CharacterLevel CharacterLevel { get; init; }
-    private int eidolon = 0;
-
-    public int Eidolon
+    // private CharacterLevel _characterLevel;
+    public CharacterLevel CharacterLevel
     {
-        get
-        {
-            return eidolon;
-        }
-        set
-        {
-            var prevEidolon = eidolon;
-            var newEidolon = int.Max(int.Min(6, value), 0);
-            eidolon = newEidolon;
-            for (var e = prevEidolon; e != newEidolon; e += int.Sign(newEidolon - prevEidolon))
-            {
-                // Disable/Enable Eidolon
-            }
-        }
+        get;
+        init;
     }
-
-    public event EventHandler onSkill; 
-    public event EventHandler onNormalAttack;
-    public event EventHandler onUltimate;
+    public event EventHandler OnSkill; 
+    public event EventHandler OnNormalAttack;
+    public event EventHandler OnUltimate;
 
     public Trace Ascension2 { get; set; }
     public Trace Ascension4 { get; set; }
@@ -157,7 +165,7 @@ public abstract class Character : Entity
         }
     }
 
-    public CharacterID Id { get; }
+    public CharacterId Id { get; }
     public CharacterPath Path { get; }
     public Stat CritRate { get; set; } = new Stat(baseValue: .05f);
     public Stat CritDamage { get; set; } = new Stat(baseValue: .5f);
@@ -177,17 +185,16 @@ public abstract class Character : Entity
         { Element.Wind, new Stat() }
     };
 
-    protected Character(CharacterID id, uint level) : base(GetCharacterSpeed(id), GetCharacterMaxHp(id, uint.Max(uint.Min(level, 80),0)),
-        GetCharacterAtk(id, uint.Max(uint.Min(level, 80),0)), GetCharacterDef(id, uint.Max(uint.Min(level, 80),0)))
+    protected Character(CharacterId id, int level) : base(GetCharacterSpeed(id), GetCharacterMaxHp(id, int.Max(int.Min(level, 80),1)),
+        GetCharacterAtk(id, int.Max(int.Min(level, 80),1)), GetCharacterDef(id, int.Max(int.Min(level, 80),1)))
     {
-        
-        CharacterLevel = new CharacterLevel(level);
+        CharacterLevel = new CharacterLevel.Unascended(level);
         Id = id;
         MaxEnergy = GetCharacterMaxEnergy(id);
         Path = GetCharacterPath(id);
-        onSkill = (sender, args) => { };
-        onNormalAttack = (sender, args) => { };
-        onUltimate = (sender, args) => { };
+        OnSkill = (sender, args) => { };
+        OnNormalAttack = (sender, args) => { };
+        OnUltimate = (sender, args) => { };
         switch (Path)
         {
             case CharacterPath.Destruction:
@@ -330,47 +337,46 @@ public abstract class Character : Entity
         }
     }
 
-    public static float GetCharacterSpeed(CharacterID id)
+    public static float GetCharacterSpeed(CharacterId id)
+    {
+        return Globals.CharacterStats[(int)id].Stats.SpeedBase;
+    }
+
+    public CharacterPath GetCharacterPath(CharacterId id)
     {
         return id switch
         {
-            CharacterID.Bronya => 99,
-            CharacterID.Blade => 97,
-            CharacterID.Tingyun => 112
+            CharacterId.Bronya or CharacterId.Tingyun => CharacterPath.Harmony,
+            CharacterId.Blade => CharacterPath.Destruction
         };
     }
 
-    public CharacterPath GetCharacterPath(CharacterID id)
-    {
-        return id switch
-        {
-            CharacterID.Bronya or CharacterID.Tingyun => CharacterPath.Harmony,
-            CharacterID.Blade => CharacterPath.Destruction
-        };
-    }
-
-    public static float GetCharacterMaxEnergy(CharacterID id)
+    public static float GetCharacterMaxEnergy(CharacterId id)
     {
         // TODO: Implement
         return 100;
     }
 
-    public static float GetCharacterMaxHp(CharacterID id, uint level)
+    public static float GetCharacterMaxHp(CharacterId id, int level)
     {
-        // TODO: Implement
-        return 1000;
+        int ascension = int.Max(int.Min((int)float.Ceiling((level - 20) / 10f), 6),0);
+        return (level - 1) * Globals.CharacterStats[(int)id].Stats.HPAdd +
+               Globals.CharacterStats[(int)id].Stats.HPBase[ascension];
+
     }
 
-    public static float GetCharacterAtk(CharacterID id, uint level)
+    public static float GetCharacterAtk(CharacterId id, int level)
     {
-        // TODO: Implement
-        return 1000;
+        int ascension = int.Max(int.Min((int)float.Ceiling((level - 20) / 10f), 6),0);
+        return (level - 1) * Globals.CharacterStats[(int)id].Stats.AttackAdd +
+               Globals.CharacterStats[(int)id].Stats.AttackBase[ascension];
     }
 
-    public static float GetCharacterDef(CharacterID id, uint level)
+    public static float GetCharacterDef(CharacterId id, int level)
     {
-        // TODO: Implement
-        return 1000;
+        int ascension = int.Max(int.Min((int)float.Ceiling((level - 20) / 10f), 6),0);
+        return (level - 1) * Globals.CharacterStats[(int)id].Stats.DefenceAdd +
+               Globals.CharacterStats[(int)id].Stats.DefenceBase[ascension];
     }
 
     // TODO: Implement abstract record or simple enum to denote if NA/Skill/Ult ends turn (they return this type)

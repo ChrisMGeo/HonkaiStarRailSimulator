@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace HonkaiStarRailSimulator;
+﻿namespace HonkaiStarRailSimulator;
 
 public enum Element
 {
@@ -12,7 +10,7 @@ public enum Element
     Quantum,
     Imaginary,
 }
-public class Entity : MovableEntity
+public abstract class Entity : MovableEntity
 {
     public override void FinishTurn()
     {

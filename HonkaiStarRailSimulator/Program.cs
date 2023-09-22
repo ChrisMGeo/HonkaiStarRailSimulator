@@ -6,27 +6,22 @@ var bronya = new Bronya();
 {
     var newBronyaSpeed = new Stat(bronya.Speed);
     newBronyaSpeed.PercentageBonus += .06f;
-    newBronyaSpeed.FlatBonus += 25 + 8 + 7 + 4 + 5;
+    newBronyaSpeed.FlatBonus += 25 + 8 + 7 + 4 + 7;
     bronya.Speed =
         newBronyaSpeed; // Setters only work when reference is changed not just value, might work if I use INotifyPropertyChanged
 }
-ts.AddEntity(bronya);
 var blade = (Blade)ts.AddEntity(new Blade());
+ts.AddEntity(bronya);
 bronya.Target = (Option<MovableEntity>)blade;
 const int cycles = 7;
-// while (ts.TotalAv < 150 + (cycles - 1) * 100)
-// {
-//     ts.Display();
-//     ts.MoveToNextTurn();
-//     if (ts.TotalAv >= 150 + (cycles - 1) * 100) break;
-//     Console.WriteLine("MOVED TO NEXT TURN");
-//     ts.Display();
-//     ts.DoAction();
-// }
 
 for (var i = 0; i < cycles; i++)
 {
     ts.RunCycle();
 }
+ts.Display();
 
 Console.WriteLine($"Blade turns: {blade.Turns}");
+Console.WriteLine($"Blade HP: {blade.MaxHp.GetFinalValue()}");
+Console.WriteLine($"Blade ATK: {blade.Atk.GetFinalValue()}");
+Console.WriteLine($"Blade DEF: {blade.Def.GetFinalValue()}");

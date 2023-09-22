@@ -1,10 +1,10 @@
 ﻿namespace HonkaiStarRailSimulator;
 
-public class MovableEntity
+public abstract class MovableEntity
 {
 
-    public event EventHandler finishTurnEvent;
-    public event EventHandler beginTurnEvent;
+    public event EventHandler FinishTurnEvent;
+    public event EventHandler BeginTurnEvent;
 
     private Stat speed;
 
@@ -49,13 +49,13 @@ public class MovableEntity
     {
         this.speed = new Stat(baseValue: initialSpd);
         this.ActionValue = this.BaseActionValue;
-        this.finishTurnEvent = (sender, args) => { };
-        this.beginTurnEvent = (sender, args) => { };
+        this.FinishTurnEvent = (sender, args) => { };
+        this.BeginTurnEvent = (sender, args) => { };
     }
 
     public virtual void DoAction()
     {
-        beginTurnEvent?.Invoke(this, EventArgs.Empty);
+        BeginTurnEvent?.Invoke(this, EventArgs.Empty);
         // Do Nothing
         FinishTurn();
     }
@@ -69,7 +69,7 @@ public class MovableEntity
         var spdNew = Speed.GetFinalValue();
         var avOld = ActionValue;
         ActionValue = avOld * spdOld / spdNew;
-        finishTurnEvent?.Invoke(this, EventArgs.Empty);
+        FinishTurnEvent?.Invoke(this, EventArgs.Empty);
     }
 
     public override string ToString()

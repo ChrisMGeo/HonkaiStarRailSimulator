@@ -50,7 +50,7 @@ public class Tingyun : Character
         }
     }
 
-    public Tingyun(uint level = 80) : base(CharacterID.Tingyun, level)
+    public Tingyun(int level = 80) : base(CharacterId.Tingyun, level)
     {
     }
 

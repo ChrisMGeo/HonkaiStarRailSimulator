@@ -16,7 +16,7 @@ public class Bronya : Character
         }
     }
 
-    public Bronya(uint level = 80) : base(CharacterID.Bronya, level)
+    public Bronya(int level = 80) : base(CharacterId.Bronya, level)
     {
     }
 
@@ -32,9 +32,9 @@ public class Bronya : Character
         {
             Console.WriteLine("Bronya Talent LVL 10");
             ActionAdvance(.3f);
-            finishTurnEvent -= TalentEvent;
+            FinishTurnEvent -= TalentEvent;
         }
-        finishTurnEvent += TalentEvent;
+        FinishTurnEvent += TalentEvent;
     }
 
     public override void Ultimate(params MovableEntity[] entities)
