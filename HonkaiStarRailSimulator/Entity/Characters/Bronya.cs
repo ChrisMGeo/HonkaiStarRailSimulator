@@ -20,6 +20,11 @@ public class Bronya : Character
     {
     }
 
+    public override string ToString()
+    {
+        return "Bronya";
+    }
+
     public override void NormalAttack(params MovableEntity[] entities)
     {
         // Could technically override FinishTurn to ActionAdvance but need to check for if previous action was normal attack which is annoying

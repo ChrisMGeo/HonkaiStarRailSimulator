@@ -56,6 +56,11 @@ public class Tingyun : Character
     {
     }
 
+    public override string ToString()
+    {
+        return "Tingyun";
+    }
+
     public override void NormalAttack(params MovableEntity[] entities)
     {
     }
