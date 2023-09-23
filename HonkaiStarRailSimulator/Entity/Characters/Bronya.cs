@@ -20,10 +20,6 @@ public class Bronya : Character
     {
     }
 
-    public override string ToString()
-    {
-        return "Bronya";
-    }
 
     public override void NormalAttack(params MovableEntity[] entities)
     {

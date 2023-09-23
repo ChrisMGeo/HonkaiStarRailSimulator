@@ -2,7 +2,7 @@
 
 public static class Globals
 {
-    public static readonly Dictionary<int, CharacterInfo> CharacterStats = new Dictionary<int, CharacterInfo>()
+    public static readonly Dictionary<int, CharacterInfo> CharacterInfo = new Dictionary<int, CharacterInfo>()
     {
         {
             1001,

@@ -414,12 +414,12 @@ public abstract class Character : Entity
 
     public static float GetCharacterSpeed(CharacterId id)
     {
-        return Globals.CharacterStats[(int)id].Stats.SpeedBase;
+        return Globals.CharacterInfo[(int)id].Stats.SpeedBase;
     }
 
     public CharacterPath GetCharacterPath(CharacterId id)
     {
-        return Globals.CharacterStats[(int)id].Path;
+        return Globals.CharacterInfo[(int)id].Path;
     }
 
     public static float GetCharacterMaxEnergy(CharacterId id)
@@ -431,22 +431,22 @@ public abstract class Character : Entity
     public static float GetCharacterMaxHp(CharacterId id, int level)
     {
         var ascension = int.Max(int.Min((int)float.Ceiling((level - 20) / 10f), 6), 0);
-        return (level - 1) * Globals.CharacterStats[(int)id].Stats.HPAdd +
-               Globals.CharacterStats[(int)id].Stats.HPBase[ascension];
+        return (level - 1) * Globals.CharacterInfo[(int)id].Stats.HPAdd +
+               Globals.CharacterInfo[(int)id].Stats.HPBase[ascension];
     }
 
     public static float GetCharacterAtk(CharacterId id, int level)
     {
         var ascension = int.Max(int.Min((int)float.Ceiling((level - 20) / 10f), 6), 0);
-        return (level - 1) * Globals.CharacterStats[(int)id].Stats.AttackAdd +
-               Globals.CharacterStats[(int)id].Stats.AttackBase[ascension];
+        return (level - 1) * Globals.CharacterInfo[(int)id].Stats.AttackAdd +
+               Globals.CharacterInfo[(int)id].Stats.AttackBase[ascension];
     }
 
     public static float GetCharacterDef(CharacterId id, int level)
     {
         var ascension = int.Max(int.Min((int)float.Ceiling((level - 20) / 10f), 6), 0);
-        return (level - 1) * Globals.CharacterStats[(int)id].Stats.DefenceAdd +
-               Globals.CharacterStats[(int)id].Stats.DefenceBase[ascension];
+        return (level - 1) * Globals.CharacterInfo[(int)id].Stats.DefenceAdd +
+               Globals.CharacterInfo[(int)id].Stats.DefenceBase[ascension];
     }
 
     // TODO: Implement abstract record or simple enum to denote if NA/Skill/Ult ends turn (they return this type)
