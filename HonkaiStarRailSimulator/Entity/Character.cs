@@ -430,21 +430,21 @@ public abstract class Character : Entity
 
     public static float GetCharacterMaxHp(CharacterId id, int level)
     {
-        var ascension = int.Max(int.Min((int)float.Ceiling((level - 20) / 10f), 6), 0);
+        var ascension = CharacterLevel.GetAscensionLevel(level);
         return (level - 1) * Globals.CharacterInfo[(int)id].Stats.HPAdd +
                Globals.CharacterInfo[(int)id].Stats.HPBase[ascension];
     }
 
     public static float GetCharacterAtk(CharacterId id, int level)
     {
-        var ascension = int.Max(int.Min((int)float.Ceiling((level - 20) / 10f), 6), 0);
+        var ascension = CharacterLevel.GetAscensionLevel(level);
         return (level - 1) * Globals.CharacterInfo[(int)id].Stats.AttackAdd +
                Globals.CharacterInfo[(int)id].Stats.AttackBase[ascension];
     }
 
     public static float GetCharacterDef(CharacterId id, int level)
     {
-        var ascension = int.Max(int.Min((int)float.Ceiling((level - 20) / 10f), 6), 0);
+        var ascension = CharacterLevel.GetAscensionLevel(level);
         return (level - 1) * Globals.CharacterInfo[(int)id].Stats.DefenceAdd +
                Globals.CharacterInfo[(int)id].Stats.DefenceBase[ascension];
     }
@@ -460,5 +460,10 @@ public abstract class Character : Entity
 
     public virtual void Ultimate(params MovableEntity[] entities)
     {
+    }
+
+    public override string ToString()
+    {
+        return Globals.CharacterInfo[(int)Id].Name;
     }
 }
