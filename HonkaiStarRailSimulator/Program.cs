@@ -26,3 +26,4 @@ Console.WriteLine($"Blade turns: {blade.Turns}");
 Console.WriteLine($"Blade HP: {blade.MaxHp.GetFinalValue()}");
 Console.WriteLine($"Blade ATK: {blade.Atk.GetFinalValue()}");
 Console.WriteLine($"Blade DEF: {blade.Def.GetFinalValue()}");
+Console.WriteLine($"Blade LVL: {blade.CharacterLevel.Level}/{blade.CharacterLevel.MaxLevel}");
