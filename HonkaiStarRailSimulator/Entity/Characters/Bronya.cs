@@ -2,18 +2,26 @@
 
 public class Bronya : Character
 {
-    public Option<MovableEntity> Target { get; set; } = new Option<MovableEntity>.None();
+    public IOption<MovableEntity> Target { get; set; } = new None<MovableEntity>();
 
     public override void Skill(params MovableEntity[] entities)
     {
-        if (entities.Length >= 1 && Target is Option<MovableEntity>.None)
-        {
-            entities[0].ActionAdvance(1);
-        }
-        else if (Target is Option<MovableEntity>.Some validTarget)
-        {
-            validTarget.Value.ActionAdvance(1);
-        }
+        Target.Match(
+            onSome: target =>
+            {
+                if (target!=this)
+                    target.ActionAdvance(1);
+                
+            },
+            onNone: () =>
+            {
+                if (entities.Length >= 1)
+                {
+                    if (entities[0]!=this)
+                        entities[0].ActionAdvance(1);
+                }
+            }
+        );
     }
 
     public Bronya(int level = 80) : base(CharacterId.Bronya, level)

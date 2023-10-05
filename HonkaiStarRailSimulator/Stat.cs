@@ -43,11 +43,15 @@ public class Stat
             uint currentStacks = 0;
             for (var i = 0; i < StatusEffects.Count; ++i)
             {
-                if (statusEffect.MergeStacking(StatusEffects[i]) is Option<StatusEffect>.Some someMerged)
-                {
-                    StatusEffects[i] = someMerged.Value;
-                    return true;
-                }
+                var merged = statusEffect.MergeStacking(StatusEffects[i]).Match(
+                    onSome: (someMerged) =>
+                    {
+                        StatusEffects[i] = someMerged;
+                        return true;
+                    },
+                    onNone: () => false
+                );
+                if (merged) return true;
 
                 if (StatusEffects[i].Id == statusEffect.Id)
                 {
@@ -84,10 +88,10 @@ public class Stat
         var res = new List<StatusEffect>();
         foreach (var result in StatusEffects.Select(statusEffect => statusEffect.GetExhausted()))
         {
-            if (result is Option<StatusEffect>.Some toAdd)
-            {
-                res.Add(toAdd.Value);
-            }
+            result.Match(
+                onSome: toAdd => { res.Add(toAdd); },
+                onNone: () => { }
+                );
         }
 
         StatusEffects = res;
@@ -143,7 +147,7 @@ public abstract class StatusEffect
         return GetInitialStacks(id) is StackingStatus.Joined ? StackingType.Joined : StackingType.Separate;
     }
 
-    public StatusEffectId Id { get; }
+    public StatusEffectId Id { get; init; }
 
     public Finity<uint> Durations { get; protected set; }
 
@@ -170,7 +174,7 @@ public abstract class StatusEffect
         }
     }
 
-    public Option<StatusEffect> GetExhausted()
+    public IOption<StatusEffect> GetExhausted()
     {
         if (Durations is Finity<uint>.Finite finiteValue)
         {
@@ -178,21 +182,21 @@ public abstract class StatusEffect
             var res = this;
             res.Durations = new Finity<uint>.Finite(newDuration);
             return (newDuration <= 0 || newDuration > finiteValue.Value
-                ? new Option<StatusEffect>.None()
-                : new Option<StatusEffect>.Some(res));
+                ? new None<StatusEffect>()
+                : Some<StatusEffect>.Of(res));
         }
         else
         {
-            return new Option<StatusEffect>.Some(this);
+            return Some<StatusEffect>.Of(this);
         }
     }
 
     public abstract StatModifier GetModifiedValues();
 
-    public Option<StatusEffect> MergeStacking(StatusEffect s)
+    public IOption<StatusEffect> MergeStacking(StatusEffect s)
     {
         if (Stacking is not StackingStatus.Joined thisJoined || s.Stacking is not StackingStatus.Joined sJoined ||
-            s.Id != Id) return new Option<StatusEffect>.None();
+            s.Id != Id) return new None<StatusEffect>();
         var maxStacks = GetMaxStacks(Id);
         uint newStacks;
         if (maxStacks is Finity<uint>.Finite finiteMaxStacks)
@@ -207,7 +211,7 @@ public abstract class StatusEffect
         var res = s;
         res.Durations = s.Durations.GetGreater(Durations);
         res.Stacking = new StackingStatus.Joined(newStacks);
-        return new Option<StatusEffect>.Some(res);
+        return Some<StatusEffect>.Of(res);
     }
 }
 

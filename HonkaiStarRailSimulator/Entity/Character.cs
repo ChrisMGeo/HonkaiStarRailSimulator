@@ -25,14 +25,7 @@ public class CharacterLevel
     public int MaxLevel => 20 + _ascensionLevel * 10;
 
     public int MinLevel => (_ascensionLevel + 1) * 10 + (_ascensionLevel == 0 ? 1 : 0);
-
-    //     _ascensionLevel switch
-    // {
-    //     0 => 1,
-    //     1 => 20,
-    //     2 => 30,
-    //     3 => 40,
-    // }
+    
     public static int GetAscensionLevel(int level, bool ascended = false)
     {
         return int.Min(
@@ -47,27 +40,6 @@ public class CharacterLevel
         _level = level;
         _ascensionLevel = GetAscensionLevel(level, ascended);
     }
-
-    // public void LevelUp()
-    // {
-    //     if (_level == 80) return;
-    //     if (_level == MaxLevel)
-    //     {
-    //         _ascensionLevel++;
-    //         return;
-    //     }
-    //
-    //     _level++;
-    // }
-    //
-    // public void LevelTo(int finalLevel)
-    // {
-    //     finalLevel = int.Max(int.Min(finalLevel, 80), _level);
-    //     while (_level != finalLevel)
-    //     {
-    //         LevelUp();
-    //     }
-    // }
 }
 
 public enum CharacterPath
@@ -114,10 +86,10 @@ public enum CharacterId
     Yanqing = 1209,
     Bailu = 1211,
     DanHengImbibitorLunae = 1213,
-    // DestructionTrailblazerM = 8001,
-    // DestructionTrailblazerF = 8002,
-    // PreservationTrailblazerM = 8003,
-    // PreservationTrailblazerF = 8004,
+    PhysicalDestructionTrailblazerM = 8001,
+    PhysicalDestructionTrailblazerF = 8002,
+    FirePreservationTrailblazerM = 8003,
+    FirePreservationTrailblazerF = 8004,
 }
 
 public abstract class Character : Entity

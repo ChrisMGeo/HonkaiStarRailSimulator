@@ -6,7 +6,7 @@ public class TurnSystem
     public float TotalAv { get; set; } = 0;
     public int Cycle => TotalAv < 150 ? 0 : 1 + (int)(TotalAv - 150) / 100;
     public float NextCycleAv => 150 + Cycle * 100;
-    public Option<MovableEntity> CurrentEntity { get; private set; } = new Option<MovableEntity>.None();
+    public IOption<MovableEntity> CurrentEntity { get; private set; } = new None<MovableEntity>();
 
     public TurnSystem()
     {
@@ -35,7 +35,7 @@ public class TurnSystem
     {
         if (Entities.Count == 0)
         {
-            CurrentEntity = new Option<MovableEntity>.None();
+            CurrentEntity = new None<MovableEntity>();
             return 0.0f;
         }
 
@@ -52,7 +52,7 @@ public class TurnSystem
             t.ActionValue -= minAv;
         }
 
-        CurrentEntity = new Option<MovableEntity>.Some(nextEntity);
+        CurrentEntity = Some<MovableEntity>.Of(nextEntity);
         TotalAv += minAv;
         return minAv;
     }
@@ -77,9 +77,10 @@ public class TurnSystem
 
     private void DoAction()
     {
-        if (CurrentEntity is not Option<MovableEntity>.Some someEntity) return;
-        var entity = someEntity.Value;
-        entity.DoAction();
+        CurrentEntity.Match(
+            onSome: (entity) => {entity.DoAction();},
+            onNone: () => {}
+        );
     }
 
     public void RunCycle()
