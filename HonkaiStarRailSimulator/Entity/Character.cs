@@ -75,6 +75,7 @@ public enum CharacterId
     Hook = 1109,
     Lynx = 1110,
     Luka = 1111,
+    TopazAndNumby = 1112,
     Qingque = 1201,
     Tingyun = 1202,
     Luocha = 1203,
@@ -84,13 +85,15 @@ public enum CharacterId
     Yukong = 1207,
     FuXuan = 1208,
     Yanqing = 1209,
+    Guinaifen = 1210,
     Bailu = 1211,
+    Jingliu = 1212,
     DanHengImbibitorLunae = 1213,
     PhysicalDestructionTrailblazerM = 8001,
     PhysicalDestructionTrailblazerF = 8002,
     FirePreservationTrailblazerM = 8003,
     FirePreservationTrailblazerF = 8004,
-}
+};
 
 public abstract class Character : Entity
 {
@@ -277,39 +280,38 @@ public abstract class Character : Entity
 
     public static float GetCharacterSpeed(CharacterId id)
     {
-        return Globals.CharacterInfo[(int)id].Stats.SpeedBase;
+        return Globals.CharacterInfo[id].Stats.SpeedBase;
     }
 
     public CharacterPath GetCharacterPath(CharacterId id)
     {
-        return Globals.CharacterInfo[(int)id].Path;
+        return Globals.CharacterInfo[id].Path;
     }
 
     public static float GetCharacterMaxEnergy(CharacterId id)
     {
-        // TODO: Implement
-        return 100;
+        return Globals.CharacterInfo[id].Stats.MaxEnergy;
     }
 
     public static float GetCharacterMaxHp(CharacterId id, int level)
     {
         var ascension = CharacterLevel.GetAscensionLevel(level);
-        return (level - 1) * Globals.CharacterInfo[(int)id].Stats.HPAdd +
-               Globals.CharacterInfo[(int)id].Stats.HPBase[ascension];
+        return (level - 1) * Globals.CharacterInfo[id].Stats.HPAdd +
+               Globals.CharacterInfo[id].Stats.HPBase[ascension];
     }
 
     public static float GetCharacterAtk(CharacterId id, int level)
     {
         var ascension = CharacterLevel.GetAscensionLevel(level);
-        return (level - 1) * Globals.CharacterInfo[(int)id].Stats.AttackAdd +
-               Globals.CharacterInfo[(int)id].Stats.AttackBase[ascension];
+        return (level - 1) * Globals.CharacterInfo[id].Stats.AttackAdd +
+               Globals.CharacterInfo[id].Stats.AttackBase[ascension];
     }
 
     public static float GetCharacterDef(CharacterId id, int level)
     {
         var ascension = CharacterLevel.GetAscensionLevel(level);
-        return (level - 1) * Globals.CharacterInfo[(int)id].Stats.DefenceAdd +
-               Globals.CharacterInfo[(int)id].Stats.DefenceBase[ascension];
+        return (level - 1) * Globals.CharacterInfo[id].Stats.DefenceAdd +
+               Globals.CharacterInfo[id].Stats.DefenceBase[ascension];
     }
 
     // TODO: Implement abstract record or simple enum to denote if NA/Skill/Ult ends turn (they return this type)
@@ -327,6 +329,6 @@ public abstract class Character : Entity
 
     public override string ToString()
     {
-        return Globals.CharacterInfo[(int)Id].Name;
+        return Globals.CharacterInfo[Id].Name;
     }
 }

@@ -38,34 +38,39 @@ public class Stat
     public bool AddStatusEffect(StatusEffect statusEffect)
     {
         var maxStacks = StatusEffect.GetMaxStacks(statusEffect.Id);
-        if (maxStacks is Finity<uint>.Finite finiteMaxStacks)
-        {
-            uint currentStacks = 0;
-            for (var i = 0; i < StatusEffects.Count; ++i)
+
+        return maxStacks.Match(
+            onFinite: (finiteMaxStacks) =>
             {
-                var merged = statusEffect.MergeStacking(StatusEffects[i]).Match(
-                    onSome: (someMerged) =>
-                    {
-                        StatusEffects[i] = someMerged;
-                        return true;
-                    },
-                    onNone: () => false
-                );
-                if (merged) return true;
-
-                if (StatusEffects[i].Id == statusEffect.Id)
+                uint currentStacks = 0;
+                for (var i = 0; i < StatusEffects.Count; ++i)
                 {
-                    ++currentStacks;
+                    var merged = statusEffect.MergeStacking(StatusEffects[i]).Match(
+                        onSome: (someMerged) =>
+                        {
+                            StatusEffects[i] = someMerged;
+                            return true;
+                        },
+                        onNone: () => false
+                    );
+                    if (merged) return true;
+                    if (StatusEffects[i].Id == statusEffect.Id)
+                    {
+                        ++currentStacks;
+                    }
                 }
+
+                if (currentStacks >= finiteMaxStacks) return false;
+                StatusEffects.Add(statusEffect);
+                return true;
+            },
+            onInfinite:
+            () =>
+            {
+                StatusEffects.Add(statusEffect);
+                return true;
             }
-
-            if (currentStacks >= finiteMaxStacks.Value) return false;
-            StatusEffects.Add(statusEffect);
-            return true;
-        }
-
-        StatusEffects.Add(statusEffect);
-        return true;
+        );
     }
 
     public bool RemoveStatusEffect(StatusEffect se)
@@ -91,7 +96,7 @@ public class Stat
             result.Match(
                 onSome: toAdd => { res.Add(toAdd); },
                 onNone: () => { }
-                );
+            );
         }
 
         StatusEffects = res;
@@ -110,48 +115,43 @@ public abstract class StatusEffect
         };
     }
 
-    public static Finity<uint> GetMaxStacks(StatusEffectId id)
+    public static IFinity<uint> GetMaxStacks(StatusEffectId id)
     {
         return id switch
         {
-            StatusEffectId.WeaponStatsBuff => new Finity<uint>.Infinite(),
-            StatusEffectId.LongevousDiscipleCritBuff => new Finity<uint>.Finite(2),
-            _ => new Finity<uint>.Finite(1)
+            StatusEffectId.WeaponStatsBuff => new Infinite<uint>(),
+            StatusEffectId.LongevousDiscipleCritBuff => Finite<uint>.Of(2),
+            _ => Finite<uint>.Of(1)
         };
     }
 
-    private static Finity<uint> GetInitialDuration(StatusEffectId id)
+    private static IFinity<uint> GetInitialDuration(StatusEffectId id)
     {
         return id switch
         {
-            StatusEffectId.Benediction => new Finity<uint>.Finite(3),
+            StatusEffectId.Benediction => Finite<uint>.Of(3),
             StatusEffectId.TheBelobogMarchCDmgBuff or StatusEffectId.TheBelobogMarchAtkBuff or
                 StatusEffectId.AstaSpeedBuff or
                 StatusEffectId.LongevousDiscipleCritBuff =>
-                new Finity<uint>.Finite(2),
-            _ => new Finity<uint>.Finite(1),
+                Finite<uint>.Of(2),
+            _ => Finite<uint>.Of(1),
         };
     }
 
-    private static StackingStatus GetInitialStacks(StatusEffectId id)
+    private static IStackingStatus GetInitialStacks(StatusEffectId id)
     {
         return id switch
         {
-            StatusEffectId.LongevousDiscipleCritBuff => new StackingStatus.Joined(1),
-            _ => new StackingStatus.Separate()
+            StatusEffectId.LongevousDiscipleCritBuff => Joined.Of(1),
+            _ => new Separate()
         };
-    }
-
-    public static StackingType GetStackingType(StatusEffectId id)
-    {
-        return GetInitialStacks(id) is StackingStatus.Joined ? StackingType.Joined : StackingType.Separate;
     }
 
     public StatusEffectId Id { get; init; }
 
-    public Finity<uint> Durations { get; protected set; }
+    public IFinity<uint> Durations { get; protected set; }
 
-    public StackingStatus Stacking { get; protected set; }
+    public IStackingStatus Stacking { get; protected set; }
 
     protected StatusEffect(StatusEffectId id)
     {
@@ -160,58 +160,44 @@ public abstract class StatusEffect
         Stacking = GetInitialStacks(id);
     }
 
-    public bool Exhaust()
-    {
-        if (Durations is Finity<uint>.Finite finiteValue)
-        {
-            var newDuration = finiteValue.Value - 1;
-            Durations = new Finity<uint>.Finite(newDuration);
-            return newDuration <= 0;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
     public IOption<StatusEffect> GetExhausted()
     {
-        if (Durations is Finity<uint>.Finite finiteValue)
-        {
-            var newDuration = finiteValue.Value - 1;
-            var res = this;
-            res.Durations = new Finity<uint>.Finite(newDuration);
-            return (newDuration <= 0 || newDuration > finiteValue.Value
-                ? new None<StatusEffect>()
-                : Some<StatusEffect>.Of(res));
-        }
-        else
-        {
-            return Some<StatusEffect>.Of(this);
-        }
+        return Durations.Match(
+            onFinite: finiteValue =>
+            {
+                var newDuration = finiteValue - 1;
+                var res = this;
+                Durations = Finite<uint>.Of(newDuration);
+                return (newDuration <= 0 || newDuration > finiteValue
+                    ? new None<StatusEffect>()
+                    : Some<StatusEffect>.Of(res));
+            },
+            onInfinite: () => Some<StatusEffect>.Of(this));
     }
 
     public abstract StatModifier GetModifiedValues();
 
     public IOption<StatusEffect> MergeStacking(StatusEffect s)
     {
-        if (Stacking is not StackingStatus.Joined thisJoined || s.Stacking is not StackingStatus.Joined sJoined ||
-            s.Id != Id) return new None<StatusEffect>();
-        var maxStacks = GetMaxStacks(Id);
-        uint newStacks;
-        if (maxStacks is Finity<uint>.Finite finiteMaxStacks)
-        {
-            newStacks = uint.Min(thisJoined.Stacks + sJoined.Stacks, finiteMaxStacks.Value);
-        }
-        else
-        {
-            newStacks = thisJoined.Stacks + sJoined.Stacks;
-        }
-
-        var res = s;
-        res.Durations = s.Durations.GetGreater(Durations);
-        res.Stacking = new StackingStatus.Joined(newStacks);
-        return Some<StatusEffect>.Of(res);
+        if (s.Id != Id) return new None<StatusEffect>();
+        return Stacking.Match(
+            onSeparate: ()=>new None<StatusEffect>(),
+            onJoined: (thisJoined) =>
+                s.Stacking.Match(
+                    onSeparate: () => new None<StatusEffect>(),
+                    onJoined: (sJoined) =>
+                    {
+                        var maxStacks = GetMaxStacks(Id);
+                        var newStacks = maxStacks.Match(
+                            onFinite: (finiteMaxStacks) => uint.Min(thisJoined + sJoined, finiteMaxStacks),
+                            onInfinite: () => thisJoined + sJoined
+                        );
+                        s.Durations = s.Durations.GetGreater(Durations);
+                        s.Stacking = Joined.Of(newStacks);
+                        return Some<StatusEffect>.Of(s);
+                    }
+                    )
+            );
     }
 }
 
@@ -275,12 +261,43 @@ public enum StackingType
     Separate,
     Joined
 }
-
-public abstract record StackingStatus
+public interface IStackingStatus
 {
-    public record Separate : StackingStatus;
+    TResult Match<TResult>(Func<uint, TResult> onJoined, Func<TResult> onSeparate);
+    void Match(Action<uint> onJoined, Action onSeparate);
+    IOption<TResult> MapJoined<TResult>(Func<uint, TResult> f);
+    IOption<TResult> MapSeparate<TResult>(Func<TResult> f);
+}
 
-    public record Joined(uint Stacks) : StackingStatus;
+public class Separate : IStackingStatus
+{
+    public TResult Match<TResult>(Func<uint, TResult> onJoined, Func<TResult> onSeparate) => onSeparate();
+
+    public void Match(Action<uint> onJoined, Action onSeparate) => onSeparate();
+
+    public IOption<TResult> MapJoined<TResult>(Func<uint, TResult> f) => new None<TResult>();
+
+    public IOption<TResult> MapSeparate<TResult>(Func<TResult> f) => Some<TResult>.Of(f());
+}
+
+public class Joined : IStackingStatus
+{
+    private uint _stacks;
+
+    private Joined(uint stacks)
+    {
+        _stacks = stacks;
+    }
+    
+    public static IStackingStatus Of(uint data) => new Joined(data);
+
+    public TResult Match<TResult>(Func<uint, TResult> onJoined, Func<TResult> onSeparate) => onJoined(_stacks);
+
+    public void Match(Action<uint> onJoined, Action onSeparate) => onJoined(_stacks);
+
+    public IOption<TResult> MapJoined<TResult>(Func<uint, TResult> f) => Some<TResult>.Of(f(_stacks));
+
+    public IOption<TResult> MapSeparate<TResult>(Func<TResult> f) => new None<TResult>();
 }
 
 public class ConstantStatusEffect : StatusEffect
@@ -304,12 +321,16 @@ public class ConstantStatusEffect : StatusEffect
 
     public override StatModifier GetModifiedValues()
     {
-        if (Stacking is StackingStatus.Joined joinedStacks)
-        {
-            return _value * joinedStacks.Stacks;
-        }
-
-        return _value;
+        return Stacking.Match(
+            onSeparate: () =>
+            {
+                return _value;
+            },
+            onJoined: (joinedStacks) =>
+            {
+                return _value * joinedStacks;
+            }
+            );
     }
 }
 

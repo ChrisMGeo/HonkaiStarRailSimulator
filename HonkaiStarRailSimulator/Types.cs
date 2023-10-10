@@ -49,26 +49,51 @@ public class None<T> : IOption<T>
     public T Or(T aDefault) => aDefault;
 }
 
-public abstract record Finity<T> : IComparable where T : INumber<T>
+public interface IFinity<T> : IComparable<IFinity<T>> where T : INumber<T>
 {
-    public record Infinite : Finity<T>;
+    TResult Match<TResult>(Func<T, TResult> onFinite, Func<TResult> onInfinite);
+    void Match(Action<T> onFinite, Action onInfinite);
+    IOption<TResult> MapFinite<TResult>(Func<T, TResult> f);
+    IOption<TResult> MapInfinite<TResult>(Func<TResult> f);
+    IFinity<T> GetGreater(IFinity<T> other) => CompareTo(other) > 0 ? this : other;
+}
 
-    public record Finite(T Value) : Finity<T>;
+public class Finite<T>:IFinity<T> where T : INumber<T>
+{
+    private T _data;
 
-    public int CompareTo(object? obj)
+    private Finite(T data)
     {
-        return obj switch
-        {
-            null => 1,
-            Finity<T> otherFinity when this is Finite thisFinite && otherFinity is Finite otherFinite => thisFinite
-                .Value.CompareTo(otherFinite.Value),
-            Finity<T> otherFinity => (this is Infinite ? 1 : 0) - (otherFinity is Infinite ? 1 : 0),
-            _ => throw new ArgumentException("Object is not a Finity")
-        };
+        _data = data;
     }
 
-    public Finity<T> GetGreater(Finity<T> other)
-    {
-        return CompareTo(other) > 0 ? this : other;
-    }
+    public static IFinity<T> Of(T data) => new Finite<T>(data);
+
+    public TResult Match<TResult>(Func<T, TResult> onFinite, Func<TResult> onInfinite) => onFinite(_data);
+
+    public void Match(Action<T> onFinite, Action onInfinite) => onFinite(_data);
+
+    public IOption<TResult> MapFinite<TResult>(Func<T, TResult> f) => Some<TResult>.Of(f(_data));
+
+    public IOption<TResult> MapInfinite<TResult>(Func<TResult> f) => new None<TResult>();
+    public int CompareTo(IFinity<T>? other) => other?.Match(
+        onInfinite: () => -1,
+        onFinite: (otherData)=>_data.CompareTo(otherData)
+    ) ?? 1;
+}
+
+public class Infinite<T>:IFinity<T> where T: INumber<T>
+{
+    public int CompareTo(IFinity<T>? other) => other?.Match(
+        onInfinite: () => 0,
+        onFinite: _ => 1
+    ) ?? 1;
+
+    public TResult Match<TResult>(Func<T, TResult> onFinite, Func<TResult> onInfinite) => onInfinite();
+
+    public void Match(Action<T> onFinite, Action onInfinite) => onInfinite();
+
+    public IOption<TResult> MapFinite<TResult>(Func<T, TResult> f) => new None<TResult>();
+
+    public IOption<TResult> MapInfinite<TResult>(Func<TResult> f) => Some<TResult>.Of(f());
 }

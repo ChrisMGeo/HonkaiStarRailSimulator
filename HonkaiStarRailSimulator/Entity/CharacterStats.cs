@@ -17,4 +17,5 @@ public class CharacterStatInfo
     public float AttackAdd { get; set; }
     public List<float> DefenceBase { get; set; } = new List<float>();
     public float DefenceAdd { get; set; }
+    public float MaxEnergy { get; set; }
 }
