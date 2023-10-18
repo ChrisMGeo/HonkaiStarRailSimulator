@@ -45,10 +45,11 @@ public class Stat
                 uint currentStacks = 0;
                 for (var i = 0; i < StatusEffects.Count; ++i)
                 {
+                    var i1 = i;
                     var merged = statusEffect.MergeStacking(StatusEffects[i]).Match(
                         onSome: (someMerged) =>
                         {
-                            StatusEffects[i] = someMerged;
+                            StatusEffects[i1] = someMerged;
                             return true;
                         },
                         onNone: () => false

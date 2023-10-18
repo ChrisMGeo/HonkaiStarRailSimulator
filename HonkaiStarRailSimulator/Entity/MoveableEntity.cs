@@ -5,30 +5,30 @@ public abstract class MovableEntity
     public event EventHandler FinishTurnEvent;
     public event EventHandler BeginTurnEvent;
 
-    private Stat speed;
+    private Stat _speed;
 
     public Stat Speed
     {
-        get => speed;
+        get => _speed;
         set
         {
             var avOld = ActionValue;
-            var spdOld = this.speed.GetFinalValue();
-            this.speed = value;
-            ActionValue = avOld * spdOld / speed.GetFinalValue();
+            var spdOld = this._speed.GetFinalValue();
+            this._speed = value;
+            ActionValue = avOld * spdOld / _speed.GetFinalValue();
         }
     }
 
-    public int Turns { get; protected set; } = 0;
+    public int Turns { get; protected set; }
 
     public float ActionValue { get; set; }
 
     public void ModifySpeed(StatusEffect statusEffect)
     {
         var avOld = ActionValue;
-        var spdOld = speed.GetFinalValue();
-        speed.AddStatusEffect(statusEffect);
-        ActionValue = avOld * spdOld / speed.GetFinalValue();
+        var spdOld = _speed.GetFinalValue();
+        _speed.AddStatusEffect(statusEffect);
+        ActionValue = avOld * spdOld / _speed.GetFinalValue();
     }
 
     public void ActionAdvance(float advancementPercentage)
@@ -37,7 +37,7 @@ public abstract class MovableEntity
         ActionValue = float.Max(ActionValue, 0);
     }
 
-    public float BaseActionValue => CalcBaseActionValue(speed.GetFinalValue());
+    public float BaseActionValue => CalcBaseActionValue(_speed.GetFinalValue());
 
     public static float CalcBaseActionValue(float spd)
     {
@@ -46,10 +46,10 @@ public abstract class MovableEntity
 
     public MovableEntity(float initialSpd)
     {
-        this.speed = new Stat(baseValue: initialSpd);
+        this._speed = new Stat(baseValue: initialSpd);
         this.ActionValue = this.BaseActionValue;
-        this.FinishTurnEvent = (sender, args) => { };
-        this.BeginTurnEvent = (sender, args) => { };
+        this.FinishTurnEvent = (_, _) => { };
+        this.BeginTurnEvent = (_, _) => { };
     }
 
     public virtual void DoAction()

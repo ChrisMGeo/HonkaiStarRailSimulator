@@ -12,7 +12,7 @@ public enum DebuffType
     Control // overrides Frozen, Entanglement and Imprisonment RES if greater than them respectively
 }
 
-public enum EnemyID
+public enum EnemyId
 {
     AbundanceLotus1,
     AbundanceLotus3,
@@ -34,13 +34,13 @@ public class Enemy : Entity
     public override void FinishTurn()
     {
         base.FinishTurn();
-        foreach (var (key, value) in DebuffRes)
+        foreach (var (key, _) in DebuffRes)
         {
             DebuffRes[key].ExhaustStatusEffects();
         }
     }
 
-    public EnemyID Id { get; }
+    public EnemyId Id { get; }
 
     public Dictionary<DebuffType, Stat> DebuffRes { set; get; } = new Dictionary<DebuffType, Stat>()
     {
@@ -54,26 +54,26 @@ public class Enemy : Entity
         { DebuffType.WindSheer, new Stat() },
     };
 
-    public Enemy(EnemyID id, uint level) : base(GetEnemySpeed(id), GetEnemyMaxHp(id, level),
+    public Enemy(EnemyId id, uint level) : base(GetEnemySpeed(id), GetEnemyMaxHp(id, level),
         GetEnemyAtk(id, level), 10 * level + 200)
     {
         Level = level;
         Id = id;
     }
 
-    public static float GetEnemySpeed(EnemyID id)
+    public static float GetEnemySpeed(EnemyId id)
     {
         // TODO: Implement
         return 100;
     }
 
-    public static float GetEnemyMaxHp(EnemyID id, uint level)
+    public static float GetEnemyMaxHp(EnemyId id, uint level)
     {
         // TODO: Implement
         return 1000;
     }
 
-    public static float GetEnemyAtk(EnemyID id, uint level)
+    public static float GetEnemyAtk(EnemyId id, uint level)
     {
         // TODO: Implement
         return 1000;

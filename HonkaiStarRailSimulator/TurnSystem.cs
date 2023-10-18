@@ -3,7 +3,7 @@
 public class TurnSystem
 {
     public List<MovableEntity> Entities = new();
-    public float TotalAv { get; set; } = 0;
+    public float TotalAv { get; set; }
     public int Cycle => TotalAv < 150 ? 0 : 1 + (int)(TotalAv - 150) / 100;
     public float NextCycleAv => 150 + Cycle * 100;
     public IOption<MovableEntity> CurrentEntity { get; private set; } = new None<MovableEntity>();

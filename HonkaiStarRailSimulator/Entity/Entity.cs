@@ -21,7 +21,7 @@ public abstract class Entity : MovableEntity
         Def.ExhaustStatusEffects();
         EffectHitRate.ExhaustStatusEffects();
         EffectRes.ExhaustStatusEffects();
-        foreach (var (key, value) in ElementalResBoost)
+        foreach (var (key, _) in ElementalResBoost)
         {
             ElementalResBoost[key].ExhaustStatusEffects();
         }

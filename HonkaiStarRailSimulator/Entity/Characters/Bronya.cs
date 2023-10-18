@@ -28,17 +28,15 @@ public class Bronya : Character
     {
     }
 
-
-    public override void NormalAttack(params MovableEntity[] entities)
+    private void TalentEvent(object? sender, EventArgs args)
     {
-        // Could technically override FinishTurn to ActionAdvance but need to check for if previous action was normal attack which is annoying
-        void TalentEvent(object? sender, EventArgs args)
-        {
-            Console.WriteLine("Bronya Talent LVL 10");
-            ActionAdvance(.3f);
-            FinishTurnEvent -= TalentEvent;
-        }
+        Console.WriteLine("Bronya Talent LVL 10");
+        ActionAdvance(.3f);
+        FinishTurnEvent -= TalentEvent;
+    }
 
+    public override void BasicAttack(params MovableEntity[] entities)
+    {
         FinishTurnEvent += TalentEvent;
     }
 
@@ -63,7 +61,7 @@ public class Bronya : Character
                 Skill();
                 break;
             default:
-                NormalAttack();
+                BasicAttack();
                 break;
         }
 

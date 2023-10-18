@@ -2,23 +2,23 @@
 
 public class Tingyun : Character
 {
-    private IOption<Character> target = new None<Character>();
+    private IOption<Character> _target = new None<Character>();
 
     public IOption<Character> Target
     {
-        get => target;
+        get => _target;
         set
         {
-            prevTarget = target;
-            target = value;
+            _prevTarget = _target;
+            _target = value;
         }
     }
 
-    private IOption<Character> prevTarget = new None<Character>();
+    private IOption<Character> _prevTarget = new None<Character>();
 
     private void RemovePreviousBenediction()
     {
-        prevTarget.Match(
+        _prevTarget.Match(
             onSome: character =>
             {
                 character.Atk.RemoveStatusEffectsById(StatusEffectId.Benediction);
@@ -58,7 +58,7 @@ public class Tingyun : Character
     {
     }
 
-    public override void NormalAttack(params MovableEntity[] entities)
+    public override void BasicAttack(params MovableEntity[] entities)
     {
     }
 
@@ -77,7 +77,7 @@ public class Tingyun : Character
                 Skill();
                 break;
             default:
-                NormalAttack();
+                BasicAttack();
                 break;
         }
 

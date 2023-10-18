@@ -1,30 +1,14 @@
 ﻿namespace HonkaiStarRailSimulator;
 
-public class CharacterLevel
+public readonly struct CharacterLevel
 {
-    private int _level;
+    public int Level { get; }
 
-    public int Level
-    {
-        get => _level;
-        set
-        {
-            var level = int.Min(int.Max(value, MinLevel), 80);
-            _level = level;
-            _ascensionLevel = GetAscensionLevel(level);
-        }
-    }
+    public int AscensionLevel { get; }
 
-    private int _ascensionLevel;
+    public int MaxLevel => 20 + AscensionLevel * 10;
 
-    public int AscensionLevel
-    {
-        get => _ascensionLevel;
-    }
-
-    public int MaxLevel => 20 + _ascensionLevel * 10;
-
-    public int MinLevel => (_ascensionLevel + 1) * 10 + (_ascensionLevel == 0 ? 1 : 0);
+    public int MinLevel => (AscensionLevel + 1) * 10 + (AscensionLevel == 0 ? 1 : 0);
     
     public static int GetAscensionLevel(int level, bool ascended = false)
     {
@@ -37,8 +21,8 @@ public class CharacterLevel
     public CharacterLevel(int level, bool ascended = false)
     {
         level = int.Min(int.Max(level, 1), 80);
-        _level = level;
-        _ascensionLevel = GetAscensionLevel(level, ascended);
+        Level = level;
+        AscensionLevel = GetAscensionLevel(level, ascended);
     }
 }
 
@@ -99,24 +83,24 @@ public abstract class Character : Entity
 {
     public class Trace
     {
-        private bool active = false;
-        private Trace? parent = null;
-        private List<Trace> children = new List<Trace>();
+        private bool _active;
+        private Trace? _parent;
+        private List<Trace> _children = new List<Trace>();
 
         public bool Active
         {
-            get => active;
+            get => _active;
             set
             {
-                var prevActive = active;
-                active = (parent == null || parent.Active) && PreRequisites() && value;
-                if (active == prevActive) return;
-                if (active)
+                var prevActive = _active;
+                _active = (_parent == null || _parent.Active) && PreRequisites() && value;
+                if (_active == prevActive) return;
+                if (_active)
                     OnActivation();
                 else
                 {
                     OnDeactivation();
-                    foreach (var child in children)
+                    foreach (var child in _children)
                     {
                         child.Active = false;
                     }
@@ -129,8 +113,8 @@ public abstract class Character : Entity
             foreach (var trace in traces)
             {
                 trace.Active = false;
-                trace.parent = this;
-                children.Add(trace);
+                trace._parent = this;
+                _children.Add(trace);
             }
         }
 
@@ -145,7 +129,7 @@ public abstract class Character : Entity
             preRequisites ??= () => true;
             onActivation ??= () => { };
             onDeactivation ??= () => { };
-            this.active = active;
+            _active = active;
             PreRequisites = preRequisites;
             OnActivation = onActivation;
             OnDeactivation = onDeactivation;
@@ -156,6 +140,74 @@ public abstract class Character : Entity
     public event EventHandler OnSkill;
     public event EventHandler OnNormalAttack;
     public event EventHandler OnUltimate;
+
+    private uint _basicAttackLevel = 1;
+    private uint _basicAttackLevelModifier = 0;
+    public uint BasicAttackLevel
+    {
+        get => _basicAttackLevel + _basicAttackLevelModifier;
+        set
+        {
+            _basicAttackLevel = uint.Min(uint.Max(value, _basicAttackLevelModifier+1), 6+_basicAttackLevelModifier)-_basicAttackLevelModifier;
+        }
+    }
+
+    public uint UnmodifiedBasicAttackLevel
+    {
+        get => _basicAttackLevel;
+        set => _basicAttackLevel = uint.Min(uint.Max(value, 1), 6);
+    }
+    
+    private uint _skillLevel = 1;
+    private uint _skillLevelModifier = 0;
+    public uint SkillLevel
+    {
+        get => _skillLevel + _skillLevelModifier;
+        set
+        {
+            _skillLevel = uint.Min(uint.Max(value, _skillLevelModifier+1), 10+_skillLevelModifier)-_skillLevelModifier;
+        }
+    }
+
+    public uint UnmodifiedSkillLevel
+    {
+        get => _skillLevel;
+        set => _skillLevel = uint.Min(uint.Max(value, 1), 10);
+    }
+    
+    private uint _ultimateLevel = 1;
+    private uint _ultimateLevelModifier = 0;
+    public uint UltimateLevel
+    {
+        get => _ultimateLevel + _ultimateLevelModifier;
+        set
+        {
+            _ultimateLevel = uint.Min(uint.Max(value, _ultimateLevelModifier+1), 10+_ultimateLevelModifier)-_ultimateLevelModifier;
+        }
+    }
+
+    public uint UnmodifiedUltimateLevel
+    {
+        get => _ultimateLevel;
+        set => _ultimateLevel = uint.Min(uint.Max(value, 1), 10);
+    }
+    
+    private uint _talentLevel = 1;
+    private uint _talentLevelModifier = 0;
+    public uint TalentLevel
+    {
+        get => _talentLevel + _talentLevelModifier;
+        set
+        {
+            _talentLevel = uint.Min(uint.Max(value, _talentLevelModifier+1), 10+_talentLevelModifier)-_talentLevelModifier;
+        }
+    }
+
+    public uint UnmodifiedTalentLevel
+    {
+        get => _talentLevel;
+        set => _talentLevel = uint.Min(uint.Max(value, 1), 10);
+    }
 
     public Trace Ascension2 { get; init; } = new Trace();
     public Trace Ascension4 { get; init; } = new Trace();
@@ -179,7 +231,7 @@ public abstract class Character : Entity
         BreakEffect.ExhaustStatusEffects();
         OutgoingHealingBoost.ExhaustStatusEffects();
         EnergyRegenerationRate.ExhaustStatusEffects();
-        foreach (var (key, value) in DamageBoost)
+        foreach (var (key, _) in DamageBoost)
         {
             DamageBoost[key].ExhaustStatusEffects();
         }
@@ -213,9 +265,9 @@ public abstract class Character : Entity
         Id = id;
         MaxEnergy = GetCharacterMaxEnergy(id);
         Path = GetCharacterPath(id);
-        OnSkill = (sender, args) => { };
-        OnNormalAttack = (sender, args) => { };
-        OnUltimate = (sender, args) => { };
+        OnSkill = (_, _) => { };
+        OnNormalAttack = (_, _) => { };
+        OnUltimate = (_, _) => { };
         Ascension2.PreRequisites = () => CharacterLevel.AscensionLevel >= 2;
         Ascension2.AddChild(StatBoost2);
         Ascension4.PreRequisites = () => CharacterLevel.AscensionLevel >= 4;
@@ -296,8 +348,8 @@ public abstract class Character : Entity
     public static float GetCharacterMaxHp(CharacterId id, int level)
     {
         var ascension = CharacterLevel.GetAscensionLevel(level);
-        return (level - 1) * Globals.CharacterInfo[id].Stats.HPAdd +
-               Globals.CharacterInfo[id].Stats.HPBase[ascension];
+        return (level - 1) * Globals.CharacterInfo[id].Stats.HpAdd +
+               Globals.CharacterInfo[id].Stats.HpBase[ascension];
     }
 
     public static float GetCharacterAtk(CharacterId id, int level)
@@ -315,7 +367,7 @@ public abstract class Character : Entity
     }
 
     // TODO: Implement abstract record or simple enum to denote if NA/Skill/Ult ends turn (they return this type)
-    public virtual void NormalAttack(params MovableEntity[] entities)
+    public virtual void BasicAttack(params MovableEntity[] entities)
     {
     }
 
