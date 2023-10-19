@@ -3,7 +3,7 @@
 public static class Globals
 {
     public static readonly Dictionary<CharacterId, CharacterInfo> CharacterInfo =
-        new Dictionary<CharacterId, CharacterInfo>()
+        new()
         {
             {
                 CharacterId.March7Th,

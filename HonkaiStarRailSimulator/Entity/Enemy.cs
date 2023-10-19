@@ -42,7 +42,7 @@ public class Enemy : Entity
 
     public EnemyId Id { get; }
 
-    public Dictionary<DebuffType, Stat> DebuffRes { set; get; } = new Dictionary<DebuffType, Stat>()
+    public Dictionary<DebuffType, Stat> DebuffRes { set; get; } = new()
     {
         { DebuffType.Bleed, new Stat() },
         { DebuffType.Burn, new Stat() },

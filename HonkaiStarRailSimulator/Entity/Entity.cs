@@ -35,10 +35,10 @@ public abstract class Entity : MovableEntity
     public Stat Atk { get; set; }
     public Stat Def { get; set; }
 
-    public Stat EffectHitRate { get; set; } = new Stat();
-    public Stat EffectRes { get; set; } = new Stat();
+    public Stat EffectHitRate { get; set; } = new();
+    public Stat EffectRes { get; set; } = new();
 
-    public Dictionary<Element, Stat> ElementalResBoost { get; set; } = new Dictionary<Element, Stat>()
+    public Dictionary<Element, Stat> ElementalResBoost { get; set; } = new()
     {
         { Element.Fire, new Stat() },
         { Element.Quantum, new Stat() },

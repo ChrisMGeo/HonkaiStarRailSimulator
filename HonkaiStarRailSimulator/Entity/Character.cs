@@ -85,7 +85,7 @@ public abstract class Character : Entity
     {
         private bool _active;
         private Trace? _parent;
-        private List<Trace> _children = new List<Trace>();
+        private List<Trace> _children = new();
 
         public bool Active
         {
@@ -209,19 +209,19 @@ public abstract class Character : Entity
         set => _talentLevel = uint.Min(uint.Max(value, 1), 10);
     }
 
-    public Trace Ascension2 { get; init; } = new Trace();
-    public Trace Ascension4 { get; init; } = new Trace();
-    public Trace Ascension6 { get; init; } = new Trace();
-    public Trace StatBoost1 { get; init; } = new Trace();
-    public Trace StatBoost2 { get; init; } = new Trace();
-    public Trace StatBoost3 { get; init; } = new Trace();
-    public Trace StatBoost4 { get; init; } = new Trace();
-    public Trace StatBoost5 { get; init; } = new Trace();
-    public Trace StatBoost6 { get; init; } = new Trace();
-    public Trace StatBoost7 { get; init; } = new Trace();
-    public Trace StatBoost8 { get; init; } = new Trace();
-    public Trace StatBoost9 { get; init; } = new Trace();
-    public Trace StatBoost10 { get; init; } = new Trace();
+    public Trace Ascension2 { get; init; } = new();
+    public Trace Ascension4 { get; init; } = new();
+    public Trace Ascension6 { get; init; } = new();
+    public Trace StatBoost1 { get; init; } = new();
+    public Trace StatBoost2 { get; init; } = new();
+    public Trace StatBoost3 { get; init; } = new();
+    public Trace StatBoost4 { get; init; } = new();
+    public Trace StatBoost5 { get; init; } = new();
+    public Trace StatBoost6 { get; init; } = new();
+    public Trace StatBoost7 { get; init; } = new();
+    public Trace StatBoost8 { get; init; } = new();
+    public Trace StatBoost9 { get; init; } = new();
+    public Trace StatBoost10 { get; init; } = new();
 
     public override void FinishTurn()
     {
@@ -239,14 +239,14 @@ public abstract class Character : Entity
 
     public CharacterId Id { get; }
     public CharacterPath Path { get; }
-    public Stat CritRate { get; set; } = new Stat(baseValue: .05f);
-    public Stat CritDamage { get; set; } = new Stat(baseValue: .5f);
-    public Stat BreakEffect { get; set; } = new Stat();
-    public Stat OutgoingHealingBoost { get; set; } = new Stat();
+    public Stat CritRate { get; set; } = new(baseValue: .05f);
+    public Stat CritDamage { get; set; } = new(baseValue: .5f);
+    public Stat BreakEffect { get; set; } = new();
+    public Stat OutgoingHealingBoost { get; set; } = new();
     public float MaxEnergy { get; set; }
-    public Stat EnergyRegenerationRate { get; set; } = new Stat();
+    public Stat EnergyRegenerationRate { get; set; } = new();
 
-    public Dictionary<Element, Stat> DamageBoost { get; set; } = new Dictionary<Element, Stat>()
+    public Dictionary<Element, Stat> DamageBoost { get; set; } = new()
     {
         { Element.Fire, new Stat() },
         { Element.Quantum, new Stat() },
