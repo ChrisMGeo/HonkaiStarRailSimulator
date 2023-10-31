@@ -120,7 +120,7 @@ public abstract class StatusEffect
     {
         return id switch
         {
-            StatusEffectId.WeaponStatsBuff => new Infinite<uint>(),
+            StatusEffectId.PermanentBaseStatBuff or StatusEffectId.PermanentFlatStatBuff => new Infinite<uint>(),
             StatusEffectId.LongevousDiscipleCritBuff => Finite<uint>.Of(2),
             _ => Finite<uint>.Of(1)
         };
@@ -130,6 +130,7 @@ public abstract class StatusEffect
     {
         return id switch
         {
+            StatusEffectId.PermanentBaseStatBuff or StatusEffectId.PermanentFlatStatBuff => new Infinite<uint>(),
             StatusEffectId.Benediction => Finite<uint>.Of(3),
             StatusEffectId.TheBelobogMarchCDmgBuff or StatusEffectId.TheBelobogMarchAtkBuff or
                 StatusEffectId.AstaSpeedBuff or
@@ -182,7 +183,7 @@ public abstract class StatusEffect
     {
         if (s.Id != Id) return new None<StatusEffect>();
         return Stacking.Match(
-            onSeparate: ()=>new None<StatusEffect>(),
+            onSeparate: () => new None<StatusEffect>(),
             onJoined: (thisJoined) =>
                 s.Stacking.Match(
                     onSeparate: () => new None<StatusEffect>(),
@@ -197,8 +198,8 @@ public abstract class StatusEffect
                         s.Stacking = Joined.Of(newStacks);
                         return Some<StatusEffect>.Of(s);
                     }
-                    )
-            );
+                )
+        );
     }
 }
 
@@ -250,7 +251,8 @@ public enum StatusEffectId
     AstaSpeedBuff,
     MessengerTraversingHackerSpaceUltBuff,
     LongevousDiscipleCritBuff,
-    WeaponStatsBuff,
+    PermanentBaseStatBuff,
+    PermanentFlatStatBuff,
     TheBelobogMarchAtkBuff,
     TheBelobogMarchCDmgBuff,
     Benediction,
@@ -262,6 +264,7 @@ public enum StackingType
     Separate,
     Joined
 }
+
 public interface IStackingStatus
 {
     TResult Match<TResult>(Func<uint, TResult> onJoined, Func<TResult> onSeparate);
@@ -289,7 +292,7 @@ public class Joined : IStackingStatus
     {
         _stacks = stacks;
     }
-    
+
     public static IStackingStatus Of(uint data) => new Joined(data);
 
     public TResult Match<TResult>(Func<uint, TResult> onJoined, Func<TResult> onSeparate) => onJoined(_stacks);
@@ -323,15 +326,9 @@ public class ConstantStatusEffect : StatusEffect
     public override StatModifier GetModifiedValues()
     {
         return Stacking.Match(
-            onSeparate: () =>
-            {
-                return _value;
-            },
-            onJoined: (joinedStacks) =>
-            {
-                return _value * joinedStacks;
-            }
-            );
+            onSeparate: () => { return _value; },
+            onJoined: (joinedStacks) => { return _value * joinedStacks; }
+        );
     }
 }
 

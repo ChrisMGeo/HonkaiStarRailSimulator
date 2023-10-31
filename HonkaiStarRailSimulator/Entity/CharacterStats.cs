@@ -22,7 +22,9 @@ public class CharacterStatInfo
 
 public class CharacterScalingInfo
 {
-    public List<List<float>> Skill { get; set; } = new();
+    public List<List<float>> Skill { get; set; } =
+        new(); // [[scaling at lvl 1, scaling 2 at lvl 1, ...],[scaling at lvl 2, scaling 2 at lvl 2, ...], ...]
+
     public List<List<float>> BasicAttack { get; set; } = new();
     public List<List<float>> Ultimate { get; set; } = new();
     public List<List<float>> Talent { get; set; } = new();

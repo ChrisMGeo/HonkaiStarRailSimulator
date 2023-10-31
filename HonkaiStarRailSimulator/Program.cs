@@ -1,5 +1,6 @@
 ﻿using HonkaiStarRailSimulator;
 using HonkaiStarRailSimulator.Characters;
+using HonkaiStarRailSimulator.Lightcones;
 
 var ts = new TurnSystem();
 var bronya = new Bronya();
@@ -21,22 +22,21 @@ var bronya = new Bronya();
 }
 var blade = (Blade)ts.AddEntity(new Blade());
 var fuXuan = new FuXuan(level: 80);
+var momentOfVictory = new MomentOfVictory(80);
+fuXuan.Lightcone = Some<Lightcone>.Of(momentOfVictory);
 {
-    fuXuan.MaxHp.BaseValue += 1058;
     fuXuan.MaxHp.FlatBonus += 705.6f + 33.87f;
-    fuXuan.MaxHp.PercentageBonus += 2*0.07343999999999999f + 3*0.432f +.12f+.1f;
+    fuXuan.MaxHp.PercentageBonus += 0.07343999999999999f + 3*0.432f +.12f + .18f;
     // var finalHp = fuXuan.MaxHp.GetFinalValue();
     // fuXuan.MaxHp.AddStatusEffect(new ConditionalStatusEffect(StatusEffectId.WeaponStatsBuff, ()=>new StatModifier(flatBonus: finalHp*0.06f)));
-    fuXuan.Atk.BaseValue += 476;
-    fuXuan.Atk.PercentageBonus += 7.344f / 100;
-    fuXuan.Atk.FlatBonus += 352.8f + 19.051877f;
-    fuXuan.Def.BaseValue += 595;
-    fuXuan.Def.FlatBonus += 35.986877f + 16.935f;
-    fuXuan.Def.PercentageBonus += 0.15660000000000002f + 0.1836f + .24f;
+    fuXuan.Atk.PercentageBonus += 7.344f / 100 + 3.888f/100;
+    fuXuan.Atk.FlatBonus += 352.8f;
+    fuXuan.Def.FlatBonus += 33.87f + 16.935f;
+    fuXuan.Def.PercentageBonus += 0.1836f + .24f;
     var newFuXuanSpeed = new Stat(fuXuan.Speed);
     // newFuXuanSpeed.FlatBonus += 25.032f;
     newFuXuanSpeed.PercentageBonus += 0.06f;
-    newFuXuanSpeed.FlatBonus += 4 + 2 + 8 + 7.2f + 0.3f*3;
+    newFuXuanSpeed.FlatBonus += 4 + 8 + 7.2f + 7.2f +.3f*6;
     fuXuan.Speed = newFuXuanSpeed;
 }
 ts.AddEntity(bronya);

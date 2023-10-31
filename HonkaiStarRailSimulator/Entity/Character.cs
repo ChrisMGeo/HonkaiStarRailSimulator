@@ -137,6 +137,25 @@ public abstract class Character : Entity
     }
 
     public CharacterLevel CharacterLevel { get; init; }
+
+    private IOption<Lightcone> _lightcone = new None<Lightcone>();
+
+    public IOption<Lightcone> Lightcone
+    {
+        get => _lightcone;
+        set
+        {
+            _lightcone.Match(
+                onNone: () => { },
+                onSome: (lc) => {lc.DetachFrom(this);}
+            );
+            _lightcone = value;
+            _lightcone.Match(
+                onNone: () => { },
+                onSome: (lc) => {lc.AttachTo(this);}
+            );
+        }
+    }
     public event EventHandler OnSkill;
     public event EventHandler OnNormalAttack;
     public event EventHandler OnUltimate;
