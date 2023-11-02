@@ -83,7 +83,7 @@ public enum LightconeId
 }
 
 public abstract class Lightcone
-{
+{ // TODO: Add an object for storing lightcone scalings for each superimposition
     public static CharacterPath GetLightconePath(LightconeId id)
     {
         return Globals.LightconeInfo[id].Path;
@@ -118,6 +118,17 @@ public abstract class Lightcone
     public CharacterLevel Level { get; init; }
     public CharacterPath Path { get; init; }
 
+    private int _superimposition = 1;
+
+    public int SuperImposition
+    {
+        get => _superimposition;
+        set
+        {
+            _superimposition = int.Max(int.Min(value, 5), 1);
+        }
+    }
+
     public virtual void AttachTo(Character c)
     {
         _equippedCharacter.Match(
@@ -144,11 +155,11 @@ public abstract class Lightcone
         Level = new CharacterLevel(level);
         Id = id;
         Path = GetLightconePath(id);
-        _hpBoost = new ConstantStatusEffect(StatusEffectId.PermanentBaseStatBuff,
+        _hpBoost = new ConstantStatusEffect(StatusEffectId.PermanentStatBuff,
             new StatModifier(baseValue: GetLightconeMaxHp(id, level)));
-        _atkBoost = new ConstantStatusEffect(StatusEffectId.PermanentBaseStatBuff,
+        _atkBoost = new ConstantStatusEffect(StatusEffectId.PermanentStatBuff,
             new StatModifier(baseValue: GetLightconeAtk(id, level)));
-        _defBoost = new ConstantStatusEffect(StatusEffectId.PermanentBaseStatBuff,
+        _defBoost = new ConstantStatusEffect(StatusEffectId.PermanentStatBuff,
             new StatModifier(baseValue: GetLightconeDef(id, level)));
     }
 }

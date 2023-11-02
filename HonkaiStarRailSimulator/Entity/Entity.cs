@@ -31,6 +31,8 @@ public abstract class Entity : MovableEntity
     public Stat MaxHp { get; set; }
     public float Hp { get; set; }
     public bool IsDead => Hp <= 0.0f;
+    
+    public event EventHandler OnHit;
 
     public Stat Atk { get; set; }
     public Stat Def { get; set; }
@@ -55,5 +57,6 @@ public abstract class Entity : MovableEntity
         Hp = MaxHp.GetFinalValue();
         Atk = new Stat(baseValue: atk);
         Def = new Stat(baseValue: def);
+        OnHit = (_, _) => { };
     }
 }

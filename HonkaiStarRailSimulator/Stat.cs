@@ -120,7 +120,7 @@ public abstract class StatusEffect
     {
         return id switch
         {
-            StatusEffectId.PermanentBaseStatBuff or StatusEffectId.PermanentFlatStatBuff => new Infinite<uint>(),
+            StatusEffectId.PermanentStatBuff => new Infinite<uint>(),
             StatusEffectId.LongevousDiscipleCritBuff => Finite<uint>.Of(2),
             _ => Finite<uint>.Of(1)
         };
@@ -130,7 +130,7 @@ public abstract class StatusEffect
     {
         return id switch
         {
-            StatusEffectId.PermanentBaseStatBuff or StatusEffectId.PermanentFlatStatBuff => new Infinite<uint>(),
+            StatusEffectId.PermanentStatBuff => new Infinite<uint>(),
             StatusEffectId.Benediction => Finite<uint>.Of(3),
             StatusEffectId.TheBelobogMarchCDmgBuff or StatusEffectId.TheBelobogMarchAtkBuff or
                 StatusEffectId.AstaSpeedBuff or
@@ -251,12 +251,12 @@ public enum StatusEffectId
     AstaSpeedBuff,
     MessengerTraversingHackerSpaceUltBuff,
     LongevousDiscipleCritBuff,
-    PermanentBaseStatBuff,
-    PermanentFlatStatBuff,
+    PermanentStatBuff,
     TheBelobogMarchAtkBuff,
     TheBelobogMarchCDmgBuff,
     Benediction,
-    BenedictionSpdBuff
+    BenedictionSpdBuff,
+    MomentOfVictoryDefBoostOnHit
 }
 
 public enum StackingType

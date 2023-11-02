@@ -136,6 +136,82 @@ public abstract class Character : Entity
         }
     }
 
+    private int _eidolon = 0;
+    public int Eidolon
+    {
+        get => _eidolon;
+        set
+        {
+            value = int.Min(int.Max(value, 0), 6);
+            if (value < _eidolon)
+            {
+                for (var i = _eidolon; i > value; --i)
+                {
+                    switch (i)
+                    {
+                        case 6:
+                            DeactivateEidolon6();
+                            break;
+                        case 5:
+                            DeactivateEidolon5();
+                            break;
+                        case 4:
+                            DeactivateEidolon4();
+                            break;
+                        case 3:
+                            DeactivateEidolon3();
+                            break;
+                        case 2:
+                            DeactivateEidolon2();
+                            break;
+                        case 1:
+                            DeactivateEidolon1();
+                            break;
+                    }
+                }
+            } else if (value > _eidolon)
+            {
+                for (var i = _eidolon + 1; _eidolon <= value; ++i)
+                {
+                    switch (i)
+                    {
+                        case 1:
+                            ActivateEidolon1();
+                            break;
+                        case 2:
+                            ActivateEidolon2();
+                            break;
+                        case 3:
+                            ActivateEidolon3();
+                            break;
+                        case 4:
+                            ActivateEidolon4();
+                            break;
+                        case 5:
+                            ActivateEidolon5();
+                            break;
+                        case 6:
+                            ActivateEidolon6();
+                            break;
+                    }
+                }
+            }
+            _eidolon = value;
+        }
+    }
+
+    protected virtual void DeactivateEidolon1() {}
+    protected virtual void DeactivateEidolon2() {}
+    protected virtual void DeactivateEidolon3() {}
+    protected virtual void DeactivateEidolon4() {}
+    protected virtual void DeactivateEidolon5() {}
+    protected virtual void DeactivateEidolon6() {}
+    protected virtual void ActivateEidolon1() {}
+    protected virtual void ActivateEidolon2() {}
+    protected virtual void ActivateEidolon3() {}
+    protected virtual void ActivateEidolon4() {}
+    protected virtual void ActivateEidolon5() {}
+    protected virtual void ActivateEidolon6() {}
     public CharacterLevel CharacterLevel { get; init; }
 
     private IOption<Lightcone> _lightcone = new None<Lightcone>();
