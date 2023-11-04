@@ -15,7 +15,7 @@ public class MomentOfVictory : Lightcone
             }
         );
     }
-    public MomentOfVictory(int level) : base(LightconeId.MomentOfVictory, level)
+    public MomentOfVictory(int level = 80) : base(LightconeId.MomentOfVictory, level)
     {
         _defPercBoost = new ConditionalStatusEffect(StatusEffectId.PermanentStatBuff, () => new StatModifier(percentageBonus:.24f+(SuperImposition-1)*.04f));
         _ehrBoost = new ConditionalStatusEffect(StatusEffectId.PermanentStatBuff, () => new StatModifier(flatBonus:.24f+(SuperImposition-1)*.04f));

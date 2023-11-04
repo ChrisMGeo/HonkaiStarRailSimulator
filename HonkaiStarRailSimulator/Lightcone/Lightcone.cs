@@ -149,7 +149,7 @@ public abstract class Lightcone
         _equippedCharacter = new None<Character>();
     }
 
-    protected Lightcone(LightconeId id, int level)
+    protected Lightcone(LightconeId id, int level = 80)
     {
         level = int.Max(int.Min(level, 80), 1);
         Level = new CharacterLevel(level);
