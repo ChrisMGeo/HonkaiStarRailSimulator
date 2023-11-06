@@ -5,6 +5,7 @@ using HonkaiStarRailSimulator.Lightcones;
 var ts = new TurnSystem();
 var bronya = new Bronya();
 {
+    bronya.TalentLevel = 10;
     var newBronyaSpeed = new Stat(bronya.Speed);
     newBronyaSpeed.PercentageBonus += .06f;
     newBronyaSpeed.FlatBonus += 25.032f + 7.2f + 4.3f + 4.3f + 7.2f + 7.8f;
@@ -22,7 +23,7 @@ var bronya = new Bronya();
 }
 var blade = (Blade)ts.AddEntity(new Blade());
 var fuXuan = new FuXuan(level: 80);
-var momentOfVictory = new MomentOfVictory(80);
+var momentOfVictory = new MomentOfVictory();
 // momentOfVictory.SuperImposition = 5;
 fuXuan.Lightcone = Some<Lightcone>.Of(momentOfVictory);
 {
@@ -40,8 +41,8 @@ fuXuan.Lightcone = Some<Lightcone>.Of(momentOfVictory);
     newFuXuanSpeed.FlatBonus += 4 + 8 + 7.2f + 7.2f +.3f*6;
     fuXuan.Speed = newFuXuanSpeed;
 }
-var guinaifen = new Guinaifen(80);
-var goodNightAndSleepWell = new GoodNightAndSleepWell(80);
+var guinaifen = new Guinaifen();
+var goodNightAndSleepWell = new GoodNightAndSleepWell();
 guinaifen.Lightcone = Some<Lightcone>.Of(goodNightAndSleepWell);
 {
     guinaifen.MaxHp.PercentageBonus += (11.664f)/100;

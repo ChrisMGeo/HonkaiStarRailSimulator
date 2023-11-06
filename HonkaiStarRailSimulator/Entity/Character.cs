@@ -236,72 +236,72 @@ public abstract class Character : Entity
     public event EventHandler OnNormalAttack;
     public event EventHandler OnUltimate;
 
-    private uint _basicAttackLevel = 1;
-    private uint _basicAttackLevelModifier = 0;
-    public uint BasicAttackLevel
+    private int _basicAttackLevel = 1;
+    private int _basicAttackLevelModifier = 0;
+    public int BasicAttackLevel
     {
         get => _basicAttackLevel + _basicAttackLevelModifier;
         set
         {
-            _basicAttackLevel = uint.Min(uint.Max(value, _basicAttackLevelModifier+1), 6+_basicAttackLevelModifier)-_basicAttackLevelModifier;
+            _basicAttackLevel = int.Min(int.Max(value, _basicAttackLevelModifier+1), 6+_basicAttackLevelModifier)-_basicAttackLevelModifier;
         }
     }
 
-    public uint UnmodifiedBasicAttackLevel
+    public int UnmodifiedBasicAttackLevel
     {
         get => _basicAttackLevel;
-        set => _basicAttackLevel = uint.Min(uint.Max(value, 1), 6);
+        set => _basicAttackLevel = int.Min(int.Max(value, 1), 6);
     }
     
-    private uint _skillLevel = 1;
-    private uint _skillLevelModifier = 0;
-    public uint SkillLevel
+    private int _skillLevel = 1;
+    private int _skillLevelModifier = 0;
+    public int SkillLevel
     {
         get => _skillLevel + _skillLevelModifier;
         set
         {
-            _skillLevel = uint.Min(uint.Max(value, _skillLevelModifier+1), 10+_skillLevelModifier)-_skillLevelModifier;
+            _skillLevel = int.Min(int.Max(value, _skillLevelModifier+1), 10+_skillLevelModifier)-_skillLevelModifier;
         }
     }
 
-    public uint UnmodifiedSkillLevel
+    public int UnmodifiedSkillLevel
     {
         get => _skillLevel;
-        set => _skillLevel = uint.Min(uint.Max(value, 1), 10);
+        set => _skillLevel = int.Min(int.Max(value, 1), 10);
     }
     
-    private uint _ultimateLevel = 1;
-    private uint _ultimateLevelModifier = 0;
-    public uint UltimateLevel
+    private int _ultimateLevel = 1;
+    private int _ultimateLevelModifier = 0;
+    public int UltimateLevel
     {
         get => _ultimateLevel + _ultimateLevelModifier;
         set
         {
-            _ultimateLevel = uint.Min(uint.Max(value, _ultimateLevelModifier+1), 10+_ultimateLevelModifier)-_ultimateLevelModifier;
+            _ultimateLevel = int.Min(int.Max(value, _ultimateLevelModifier+1), 10+_ultimateLevelModifier)-_ultimateLevelModifier;
         }
     }
 
-    public uint UnmodifiedUltimateLevel
+    public int UnmodifiedUltimateLevel
     {
         get => _ultimateLevel;
-        set => _ultimateLevel = uint.Min(uint.Max(value, 1), 10);
+        set => _ultimateLevel = int.Min(int.Max(value, 1), 10);
     }
     
-    private uint _talentLevel = 1;
-    private uint _talentLevelModifier = 0;
-    public uint TalentLevel
+    private int _talentLevel = 1;
+    private int _talentLevelModifier = 0;
+    public int TalentLevel
     {
         get => _talentLevel + _talentLevelModifier;
         set
         {
-            _talentLevel = uint.Min(uint.Max(value, _talentLevelModifier+1), 10+_talentLevelModifier)-_talentLevelModifier;
+            _talentLevel = int.Min(int.Max(value, _talentLevelModifier+1), 10+_talentLevelModifier)-_talentLevelModifier;
         }
     }
 
-    public uint UnmodifiedTalentLevel
+    public int UnmodifiedTalentLevel
     {
         get => _talentLevel;
-        set => _talentLevel = uint.Min(uint.Max(value, 1), 10);
+        set => _talentLevel = int.Min(int.Max(value, 1), 10);
     }
 
     public Trace Ascension2 { get; init; } = new();
@@ -466,13 +466,30 @@ public abstract class Character : Entity
     {
     }
 
+    protected List<float> _getBasicAttackScalings()
+    {
+        return Globals.CharacterInfo[Id].Scalings.BasicAttack[BasicAttackLevel - 1];
+    } 
+
     public virtual void Skill(params MovableEntity[] entities)
     {
     }
+    protected List<float> _getSkillScalings()
+    {
+        return Globals.CharacterInfo[Id].Scalings.Skill[SkillLevel - 1];
+    } 
 
     public virtual void Ultimate(params MovableEntity[] entities)
     {
     }
+    protected List<float> _getUltimateScalings()
+    {
+        return Globals.CharacterInfo[Id].Scalings.Ultimate[UltimateLevel - 1];
+    } 
+    protected List<float> _getTalentScalings()
+    {
+        return Globals.CharacterInfo[Id].Scalings.Talent[TalentLevel - 1];
+    } 
 
     public override string ToString()
     {

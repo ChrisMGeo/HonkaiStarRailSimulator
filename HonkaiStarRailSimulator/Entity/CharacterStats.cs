@@ -5,6 +5,7 @@ public class CharacterInfo
     public string Name { get; set; } = "Unnamed";
     public CharacterPath Path { get; set; } = CharacterPath.TheHunt;
     public CharacterStatInfo Stats { get; set; } = new();
+    public CharacterScalingInfo Scalings { get; set; } = new();
 }
 
 public class CharacterStatInfo
