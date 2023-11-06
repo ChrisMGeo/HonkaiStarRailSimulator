@@ -29,6 +29,7 @@ public class Tingyun : Character
 
     public override void Skill(params MovableEntity[] entities)
     {
+        var skillScalings = _getSkillScalings();
         IOption<Character> finalTarget = Target.Match(
             onSome: character => Some<Character>.Of(character),
             onNone: () =>
@@ -43,7 +44,7 @@ public class Tingyun : Character
             onSome: character =>
             {
                 character.Atk.AddStatusEffect(new ConditionalStatusEffect(StatusEffectId.Benediction,
-                    () => new StatModifier(percentageBonus: float.Min(0.5f, Atk.GetFinalValue() * .25f))));
+                    () => new StatModifier(percentageBonus: float.Min(skillScalings[1], Atk.GetFinalValue() * skillScalings[2]))));
                 RemovePreviousBenediction();
                 if (Ascension2.Active)
                 {
@@ -52,6 +53,7 @@ public class Tingyun : Character
             },
             onNone: () => { }
         );
+        // TODO: When the ally with Benediction attacks, they will deal Additional Lightning DMG equal to 50% of that ally's ATK for 1 time.
     }
 
     public Tingyun(int level = 80) : base(CharacterId.Tingyun, level)

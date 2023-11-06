@@ -30,8 +30,10 @@ public class Bronya : Character
 
     private void TalentEvent(object? sender, EventArgs args)
     {
-        Console.WriteLine("Bronya Talent LVL 10");
-        ActionAdvance(.3f);
+        var advanceFactor = _getTalentScalings()[0];
+        Console.WriteLine($"Bronya Talent LVL {TalentLevel}: AA by {advanceFactor}");
+        ActionAdvance(advanceFactor);
+        // TODO: ..., and increases their DMG by 49% for 1 turn(s).
         FinishTurnEvent -= TalentEvent;
     }
 
