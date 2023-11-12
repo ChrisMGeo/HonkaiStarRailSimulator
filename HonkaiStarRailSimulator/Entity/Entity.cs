@@ -40,16 +40,10 @@ public abstract class Entity : MovableEntity
     public Stat EffectHitRate { get; set; } = new();
     public Stat EffectRes { get; set; } = new();
 
-    public Dictionary<Element, Stat> ElementalResBoost { get; set; } = new()
-    {
-        { Element.Fire, new Stat() },
-        { Element.Quantum, new Stat() },
-        { Element.Ice, new Stat() },
-        { Element.Imaginary, new Stat() },
-        { Element.Lightning, new Stat() },
-        { Element.Physical, new Stat() },
-        { Element.Wind, new Stat() }
-    };
+    public Dictionary<Element, Stat> ElementalResBoost { get; set; } = Enum.GetValues(typeof(Element)).Cast<Element>()
+        .ToDictionary(d => d, _ => new Stat());
+    public Dictionary<DamageResType, Stat> DamageResistances { get; set; } = Enum.GetValues(typeof(DamageResType)).Cast<DamageResType>()
+        .ToDictionary(d => d, _ => new Stat());
 
     public Entity(float initialSpd, float maxHp, float atk, float def) : base(initialSpd)
     {

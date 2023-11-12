@@ -6,12 +6,14 @@ public class Bronya : Character
 
     public override void Skill(params MovableEntity[] entities)
     {
+        var skillScalings = _getSkillScalings();
         Target.Match(
             onSome: target =>
             {
                 if (target!=this)
                     target.ActionAdvance(1);
-                
+                if (target is Character character)
+                    character.DamageBonuses[DamageBonusType.All].AddStatusEffect(new ConstantStatusEffect(StatusEffectId.CombatRedeployment, new StatModifier(skillScalings[0])));
             },
             onNone: () =>
             {
@@ -19,6 +21,8 @@ public class Bronya : Character
                 {
                     if (entities[0]!=this)
                         entities[0].ActionAdvance(1);
+                    if (entities[0] is Character character)
+                        character.DamageBonuses[DamageBonusType.All].AddStatusEffect(new ConstantStatusEffect(StatusEffectId.CombatRedeployment, new StatModifier(skillScalings[0])));
                 }
             }
         );
@@ -33,7 +37,6 @@ public class Bronya : Character
         var advanceFactor = _getTalentScalings()[0];
         Console.WriteLine($"Bronya Talent LVL {TalentLevel}: AA by {advanceFactor}");
         ActionAdvance(advanceFactor);
-        // TODO: ..., and increases their DMG by 49% for 1 turn(s).
         FinishTurnEvent -= TalentEvent;
     }
 
@@ -44,13 +47,14 @@ public class Bronya : Character
 
     public override void Ultimate(params MovableEntity[] entities)
     {
+        var ultimateScalings = _getUltimateScalings();
         foreach (var entity in entities)
         {
             if (entity is not Character charEntity) continue;
             charEntity.Atk.AddStatusEffect(new ConstantStatusEffect(StatusEffectId.TheBelobogMarchAtkBuff,
-                new StatModifier(percentageBonus: 0.55f)));
+                new StatModifier(percentageBonus: ultimateScalings[0])));
             charEntity.CritDamage.AddStatusEffect(new ConstantStatusEffect(StatusEffectId.TheBelobogMarchCDmgBuff,
-                new StatModifier(flatBonus: .2f + CritDamage.GetFinalValue() * .16f)));
+                new StatModifier(flatBonus: ultimateScalings[1] + CritDamage.GetFinalValue() * ultimateScalings[2])));
         }
     }
 

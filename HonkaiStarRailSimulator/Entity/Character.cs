@@ -79,6 +79,20 @@ public enum CharacterId
     FirePreservationTrailblazerF = 8004,
 };
 
+public enum DamageBonusType
+{
+    All,
+    BasicAttack,
+    Skill,
+    Talent,
+    FollowUp,
+}
+
+public enum DamageResType
+{
+    All
+}
+
 public abstract class Character : Entity
 {
     public class Trace
@@ -326,9 +340,9 @@ public abstract class Character : Entity
         BreakEffect.ExhaustStatusEffects();
         OutgoingHealingBoost.ExhaustStatusEffects();
         EnergyRegenerationRate.ExhaustStatusEffects();
-        foreach (var (key, _) in DamageBoost)
+        foreach (var (key, _) in ElementalDamageBoost)
         {
-            DamageBoost[key].ExhaustStatusEffects();
+            ElementalDamageBoost[key].ExhaustStatusEffects();
         }
     }
 
@@ -341,16 +355,11 @@ public abstract class Character : Entity
     public float MaxEnergy { get; set; }
     public Stat EnergyRegenerationRate { get; set; } = new();
 
-    public Dictionary<Element, Stat> DamageBoost { get; set; } = new()
-    {
-        { Element.Fire, new Stat() },
-        { Element.Quantum, new Stat() },
-        { Element.Ice, new Stat() },
-        { Element.Imaginary, new Stat() },
-        { Element.Lightning, new Stat() },
-        { Element.Physical, new Stat() },
-        { Element.Wind, new Stat() }
-    };
+    public Dictionary<Element, Stat> ElementalDamageBoost { get; set; } = Enum.GetValues(typeof(Element)).Cast<Element>()
+        .ToDictionary(d => d, _ => new Stat());
+
+    public Dictionary<DamageBonusType, Stat> DamageBonuses { get; set; } = Enum.GetValues(typeof(DamageBonusType))
+        .Cast<DamageBonusType>().ToDictionary(d => d, _ => new Stat());
 
     protected Character(CharacterId id, int level) : base(GetCharacterSpeed(id),
         GetCharacterMaxHp(id, int.Max(int.Min(level, 80), 1)),
