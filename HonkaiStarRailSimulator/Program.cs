@@ -6,6 +6,8 @@ var ts = new TurnSystem();
 var bronya = new Bronya();
 {
     bronya.TalentLevel = 10;
+    bronya.SkillLevel = 10;
+    bronya.UltimateLevel = 10;
     var newBronyaSpeed = new Stat(bronya.Speed);
     newBronyaSpeed.PercentageBonus += .06f;
     newBronyaSpeed.FlatBonus += 25.032f + 7.2f + 4.3f + 4.3f + 7.2f + 7.8f;
@@ -74,22 +76,22 @@ for (var i = 0; i < cycles; i++)
 
 ts.Display();
 
-Console.WriteLine($"Blade turns : {blade.Turns}");
-Console.WriteLine($"Blade HP    : {blade.MaxHp.GetFinalValue()}");
-Console.WriteLine($"Blade ATK   : {blade.Atk.GetFinalValue()}");
-Console.WriteLine($"Blade DEF   : {blade.Def.GetFinalValue()}");
-Console.WriteLine($"Blade LVL   : {blade.CharacterLevel.Level}/{blade.CharacterLevel.MaxLevel}");
+Console.WriteLine($"Blade turns    : {blade.Turns}");
+Console.WriteLine($"Blade HP       : {blade.MaxHp.GetFinalValue()}");
+Console.WriteLine($"Blade ATK      : {blade.Atk.GetFinalValue()}");
+Console.WriteLine($"Blade DEF      : {blade.Def.GetFinalValue()}");
+Console.WriteLine($"Blade LVL      : {blade.CharacterLevel.Level}/{blade.CharacterLevel.MaxLevel}");
 Console.WriteLine();
-Console.WriteLine($"Bronya HP   : {bronya.MaxHp.GetFinalValue()}");
-Console.WriteLine($"Bronya ATK  : {bronya.Atk.GetFinalValue()}");
-Console.WriteLine($"Bronya DEF  : {bronya.Def.GetFinalValue()}");
-Console.WriteLine($"Bronya SPD  : {bronya.Speed.GetFinalValue()}");
+Console.WriteLine($"Bronya HP      : {bronya.MaxHp.GetFinalValue()}");
+Console.WriteLine($"Bronya ATK     : {bronya.Atk.GetFinalValue()}");
+Console.WriteLine($"Bronya DEF     : {bronya.Def.GetFinalValue()}");
+Console.WriteLine($"Bronya SPD     : {bronya.Speed.GetFinalValue()}");
 Console.WriteLine();
-Console.WriteLine($"Fu Xuan HP   : {fuXuan.MaxHp.GetFinalValue()}");
-Console.WriteLine($"Fu Xuan ATK  : {fuXuan.Atk.GetFinalValue()}");
-Console.WriteLine($"Fu Xuan DEF  : {fuXuan.Def.GetFinalValue()}");
-Console.WriteLine($"Fu Xuan SPD  : {fuXuan.Speed.GetFinalValue()}");
-Console.WriteLine($"Fu Xuan EHR  : {fuXuan.EffectHitRate.GetFinalValue()}");
+Console.WriteLine($"Fu Xuan HP     : {fuXuan.MaxHp.GetFinalValue()}");
+Console.WriteLine($"Fu Xuan ATK    : {fuXuan.Atk.GetFinalValue()}");
+Console.WriteLine($"Fu Xuan DEF    : {fuXuan.Def.GetFinalValue()}");
+Console.WriteLine($"Fu Xuan SPD    : {fuXuan.Speed.GetFinalValue()}");
+Console.WriteLine($"Fu Xuan EHR    : {fuXuan.EffectHitRate.GetFinalValue()}");
 Console.WriteLine();
 Console.WriteLine($"Guinaifen HP   : {guinaifen.MaxHp.GetFinalValue()}");
 Console.WriteLine($"Guinaifen ATK  : {guinaifen.Atk.GetFinalValue()}");
