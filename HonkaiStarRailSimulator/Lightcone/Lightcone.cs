@@ -149,6 +149,42 @@ public abstract class Lightcone
         _equippedCharacter = new None<Character>();
     }
 
+    public static void SwapWeapons(Character a, Character b)
+    {
+        a.Lightcone.Match(
+            onSome: aLightcone =>
+            {
+                b.Lightcone.Match(
+                    onSome: bLightcone =>
+                    {
+                        b.Lightcone = Some<Lightcone>.Of(aLightcone);
+                        a.Lightcone = Some<Lightcone>.Of(bLightcone);
+                    },
+                    onNone: () =>
+                    {
+                        b.Lightcone = Some<Lightcone>.Of(aLightcone);
+                        a.Lightcone = new None<Lightcone>();
+                    }
+                );
+            },
+            onNone: () =>
+            {
+                b.Lightcone.Match(
+                    onSome: bLightcone =>
+                    {
+                        a.Lightcone = Some<Lightcone>.Of(bLightcone);
+                        b.Lightcone = new None<Lightcone>();
+                    },
+                    onNone: () =>
+                    {
+                        a.Lightcone = new None<Lightcone>();
+                        b.Lightcone = new None<Lightcone>();
+                    }
+                );
+            }
+        );
+    }
+
     protected Lightcone(LightconeId id, int level = 80)
     {
         level = int.Max(int.Min(level, 80), 1);
