@@ -344,6 +344,10 @@ public abstract class Character : Entity
         {
             ElementalDamageBoost[key].ExhaustStatusEffects();
         }
+        foreach (var (key, _) in DamageBonuses)
+        {
+            DamageBonuses[key].ExhaustStatusEffects();
+        }
     }
 
     public CharacterId Id { get; }
@@ -360,6 +364,20 @@ public abstract class Character : Entity
 
     public Dictionary<DamageBonusType, Stat> DamageBonuses { get; set; } = Enum.GetValues(typeof(DamageBonusType))
         .Cast<DamageBonusType>().ToDictionary(d => d, _ => new Stat());
+
+    public float GetTotalDamageBoost(IOption<Element> element, params DamageBonusType[] damageBonusTypes)
+    {
+        float res = 0;
+        element.Match(
+            onSome: someElement => res+=ElementalDamageBoost[someElement].GetFinalValue(),
+            onNone: () => { }
+        );
+        foreach (var damageBonusType in damageBonusTypes)
+        {
+            res += DamageBonuses[damageBonusType].GetFinalValue();
+        }
+        return res;
+    }
 
     protected Character(CharacterId id, int level) : base(GetCharacterSpeed(id),
         GetCharacterMaxHp(id, int.Max(int.Min(level, 80), 1)),
