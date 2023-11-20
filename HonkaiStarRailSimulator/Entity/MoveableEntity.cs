@@ -2,6 +2,7 @@
 
 public abstract class MovableEntity
 {
+    public IOption<TurnSystem> TurnSystem { get; set; } = new None<TurnSystem>();
     public event EventHandler FinishTurnEvent;
     public event EventHandler BeginTurnEvent;
 

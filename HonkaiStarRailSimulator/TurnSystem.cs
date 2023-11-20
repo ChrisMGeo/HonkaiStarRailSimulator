@@ -28,6 +28,7 @@ public class TurnSystem
     public MovableEntity AddEntity(MovableEntity entity)
     {
         Entities.Add(entity);
+        entity.TurnSystem = Some<TurnSystem>.Of(this);
         return entity;
     }
 
