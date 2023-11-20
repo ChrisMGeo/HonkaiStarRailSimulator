@@ -246,9 +246,20 @@ public abstract class Character : Entity
             );
         }
     }
-    public event EventHandler OnSkill;
-    public event EventHandler OnNormalAttack;
-    public event EventHandler OnUltimate;
+
+    public class OnSkillArgs : EventArgs
+    {
+    }
+
+    public event HSREventHandler<Character, OnSkillArgs> OnSkill;
+    public class OnNormalAttackArgs : EventArgs
+    {
+    }
+    public event HSREventHandler<Character, OnNormalAttackArgs> OnNormalAttack;
+    public class OnUltimateArgs : EventArgs
+    {
+    }
+    public event HSREventHandler<Character, OnUltimateArgs> OnUltimate;
 
     private int _basicAttackLevel = 1;
     private int _basicAttackLevelModifier = 0;
@@ -387,9 +398,9 @@ public abstract class Character : Entity
         Id = id;
         MaxEnergy = GetCharacterMaxEnergy(id);
         Path = GetCharacterPath(id);
-        OnSkill = (_, _) => { };
-        OnNormalAttack = (_, _) => { };
-        OnUltimate = (_, _) => { };
+        OnSkill = (_, _, _) => { };
+        OnNormalAttack = (_, _, _) => { };
+        OnUltimate = (_, _, _) => { };
         Ascension2.PreRequisites = () => CharacterLevel.AscensionLevel >= 2;
         Ascension2.AddChild(StatBoost2);
         Ascension4.PreRequisites = () => CharacterLevel.AscensionLevel >= 4;

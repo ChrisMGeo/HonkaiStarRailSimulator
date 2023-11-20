@@ -32,7 +32,7 @@ public class Bronya : Character
     {
     }
 
-    private void TalentEvent(object? sender, EventArgs args)
+    private void TalentEvent(MovableEntity sender, IOption<TurnSystem> turnSystem, FinishTurnArgs args)
     {
         var advanceFactor = _getTalentScalings()[0];
         Console.WriteLine($"Bronya Talent LVL {TalentLevel}: AA by {advanceFactor}");

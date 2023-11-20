@@ -5,7 +5,7 @@ public class MomentOfVictory : Lightcone
     private readonly StatusEffect _defPercBoost;
     private readonly StatusEffect _ehrBoost;
 
-    private void _defPercBoostOnHit(object? sender, EventArgs args)
+    private void _defPercBoostOnHit(Entity sender, IOption<TurnSystem> turnSystem, Entity.OnHitArgs args)
     {
         _equippedCharacter.Match(
             onNone: () => { },

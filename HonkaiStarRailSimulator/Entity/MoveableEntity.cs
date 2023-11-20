@@ -3,8 +3,21 @@
 public abstract class MovableEntity
 {
     public IOption<TurnSystem> TurnSystem { get; set; } = new None<TurnSystem>();
-    public event EventHandler FinishTurnEvent;
-    public event EventHandler BeginTurnEvent;
+
+    public delegate void HSREventHandler<TEntity, TEventArgs>(TEntity sender, IOption<TurnSystem> turnSystem,
+        TEventArgs args)
+        where TEntity : MovableEntity
+        where TEventArgs : EventArgs;
+
+    public class FinishTurnArgs : EventArgs
+    {
+    }
+    public class BeginTurnArgs : EventArgs
+    {
+    }
+
+    public event HSREventHandler<MovableEntity, FinishTurnArgs> FinishTurnEvent;
+    public event HSREventHandler<MovableEntity, BeginTurnArgs> BeginTurnEvent;
 
     private Stat _speed;
 
@@ -49,13 +62,13 @@ public abstract class MovableEntity
     {
         this._speed = new Stat(baseValue: initialSpd);
         this.ActionValue = this.BaseActionValue;
-        this.FinishTurnEvent = (_, _) => { };
-        this.BeginTurnEvent = (_, _) => { };
+        this.FinishTurnEvent = (_, _, _) => { };
+        this.BeginTurnEvent = (_, _, _) => { };
     }
 
     public virtual void DoAction()
     {
-        BeginTurnEvent?.Invoke(this, EventArgs.Empty);
+        BeginTurnEvent?.Invoke(this, TurnSystem, new BeginTurnArgs());
         // Do Nothing
         FinishTurn();
     }
@@ -69,7 +82,7 @@ public abstract class MovableEntity
         var spdNew = Speed.GetFinalValue();
         var avOld = ActionValue;
         ActionValue = avOld * spdOld / spdNew;
-        FinishTurnEvent?.Invoke(this, EventArgs.Empty);
+        FinishTurnEvent?.Invoke(this, TurnSystem, new FinishTurnArgs());
     }
 
     public override string ToString()
