@@ -107,4 +107,54 @@ public class TurnSystem
             DoAction();
         } while (TotalAv < nextCycleAv);
     }
+
+    public IOption<T> GetNext<T>() where T: MovableEntity
+    {
+        IOption<float> minAv = new None<float>();
+        IOption<T> res = new None<T>();
+        IOption<MovableEntity> current = CurrentEntity;
+        foreach (var entity in Entities)
+        {
+            var av = entity.ActionValue;
+            if (entity is not T castedEntity) continue;
+            current.Match(
+                onSome: (movableEntity) =>
+                {
+                    if (entity != movableEntity)
+                    {
+                        minAv.Match(
+                            onNone: () =>
+                            {
+                                minAv = Some<float>.Of(av);
+                                res = Some<T>.Of(castedEntity);
+                            },
+                            onSome: someMinAv =>
+                            {
+                                if (!(av < someMinAv)) return;
+                                minAv = Some<float>.Of(av);
+                                res = Some<T>.Of(castedEntity);
+                            }
+                        );
+                    }
+                },
+                onNone: () =>
+                {
+                    minAv.Match(
+                        onNone: () =>
+                        {
+                            minAv = Some<float>.Of(av);
+                            res = Some<T>.Of(castedEntity);
+                        },
+                        onSome: someMinAv =>
+                        {
+                            if (!(av < someMinAv)) return;
+                            minAv = Some<float>.Of(av);
+                            res = Some<T>.Of(castedEntity);
+                        }
+                    );
+                }
+            );
+        }
+        return res;
+    }
 }
