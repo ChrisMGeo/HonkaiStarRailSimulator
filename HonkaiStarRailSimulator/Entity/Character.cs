@@ -502,6 +502,7 @@ public abstract class Character : Entity
     // TODO: Implement abstract record or simple enum to denote if NA/Skill/Ult ends turn (they return this type)
     public virtual void BasicAttack(params MovableEntity[] entities)
     {
+        OnNormalAttack?.Invoke(this, TurnSystem, new OnNormalAttackArgs());
     }
 
     protected List<float> _getBasicAttackScalings()
@@ -511,6 +512,7 @@ public abstract class Character : Entity
 
     public virtual void Skill(params MovableEntity[] entities)
     {
+        OnSkill?.Invoke(this, TurnSystem, new OnSkillArgs());
     }
     protected List<float> _getSkillScalings()
     {
@@ -519,6 +521,7 @@ public abstract class Character : Entity
 
     public virtual void Ultimate(params MovableEntity[] entities)
     {
+        OnUltimate?.Invoke(this, TurnSystem, new OnUltimateArgs());
     }
     protected List<float> _getUltimateScalings()
     {

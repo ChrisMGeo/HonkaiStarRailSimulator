@@ -26,6 +26,7 @@ public class Bronya : Character
                 }
             }
         );
+        base.Skill();
     }
 
     public Bronya(int level = 80) : base(CharacterId.Bronya, level)
@@ -43,6 +44,7 @@ public class Bronya : Character
     public override void BasicAttack(params MovableEntity[] entities)
     {
         FinishTurnEvent += TalentEvent;
+        base.BasicAttack();
     }
 
     public override void Ultimate(params MovableEntity[] entities)
@@ -56,6 +58,7 @@ public class Bronya : Character
             charEntity.CritDamage.AddStatusEffect(new ConstantStatusEffect(StatusEffectId.TheBelobogMarchCDmgBuff,
                 new StatModifier(flatBonus: ultimateScalings[1] + CritDamage.GetFinalValue() * ultimateScalings[2])));
         }
+        base.Ultimate();
     }
 
     public override void DoAction()
