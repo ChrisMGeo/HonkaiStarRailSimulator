@@ -36,7 +36,13 @@ public abstract class Entity : MovableEntity
     {
     }
 
-    public event HSREventHandler<Entity, OnHitArgs> OnHit;
+    public event HSREventHandler<Entity, OnHitArgs> OnHit; // Explicitly hit but not neccesarily damaged
+
+    public class OnHurtArgs : EventArgs
+    {
+    }
+
+    public event HSREventHandler<Entity, OnHurtArgs> OnHurt; // hurt whether by  attack, dot, etc.
 
     public Stat Atk { get; set; }
     public Stat Def { get; set; }
@@ -46,7 +52,9 @@ public abstract class Entity : MovableEntity
 
     public Dictionary<Element, Stat> ElementalResBoost { get; set; } = Enum.GetValues(typeof(Element)).Cast<Element>()
         .ToDictionary(d => d, _ => new Stat());
-    public Dictionary<DamageResType, Stat> DamageResistances { get; set; } = Enum.GetValues(typeof(DamageResType)).Cast<DamageResType>()
+
+    public Dictionary<DamageResType, Stat> DamageResistances { get; set; } = Enum.GetValues(typeof(DamageResType))
+        .Cast<DamageResType>()
         .ToDictionary(d => d, _ => new Stat());
 
     public Entity(float initialSpd, float maxHp, float atk, float def) : base(initialSpd)
@@ -56,5 +64,6 @@ public abstract class Entity : MovableEntity
         Atk = new Stat(baseValue: atk);
         Def = new Stat(baseValue: def);
         OnHit = (_, _, _) => { };
+        OnHurt = (_, _, _) => { };
     }
 }
