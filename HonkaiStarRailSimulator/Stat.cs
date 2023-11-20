@@ -257,7 +257,8 @@ public enum StatusEffectId
     Benediction,
     BenedictionSpdBuff,
     MomentOfVictoryDefBoostOnHit,
-    CombatRedeployment
+    CombatRedeployment,
+    ButTheBattleIsntOverDmgBuff
 }
 
 public enum StackingType
